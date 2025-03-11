@@ -1,1 +1,0 @@
-g++ main.cpp renderer.cpp filemanager.cpp window.cpp -o test -lncurses
