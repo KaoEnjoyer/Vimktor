@@ -1,3 +1,3 @@
-Status x: 22, y: 22, h: 2, w80 
-Text x: 5, y: 0, h: 22, w75 
-Win x: 0, y: 0, h: 24, w80 
+Status x: 37, y: 37, h: 2, w167 
+Text x: 5, y: 0, h: 37, w162 
+Win x: 0, y: 0, h: 39, w167 

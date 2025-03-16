@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <cstdlib>
+#include <fstream>
 #include <ncurses.h>
 #include <string>
 #include <vector>
@@ -31,13 +32,19 @@ enum CursorDirection {
   Right,
 };
 
+enum EditorMode {
+  Input,
+  Normal,
+  Visual,
+};
+
 class Cursor {
 public:
   Cursor();
   Cursor(int min_x, int max_x, int min_y, int max_y);
   void move(CursorDirection dir);
 
-  const int x() const { return m_y; }
+  const int x() const { return m_x; }
   const int y() const { return m_y; }
 
 private:
@@ -49,25 +56,6 @@ private:
   size_t m_x;
   size_t m_y;
 };
-
-class Status {
-public:
-  Status(size_t win_height, size_t win_width);
-
-  const int height() const { return m_height; }
-  const int width() const { return m_width; }
-  const int x() const { return m_y; }
-  const int y() const { return m_y; }
-
-private:
-  size_t m_x;
-  size_t m_y;
-  size_t m_width;
-  size_t m_height;
-  std::string top;
-  std::string bot;
-};
-
 class Textbox {
 public:
   Textbox(size_t win_height, size_t win_width);
@@ -78,10 +66,12 @@ public:
   int y() const { return m_y; }
   int line() const { return starting_line; }
   int column() const { return starting_coll; }
-
+  std::string file_name() const { return m_file_name; };
   std::vector<std::string> data;
 
   void to_buffer(std::vector<std::vector<int>> &buff) const;
+
+  void load_file(const std::string &file_name);
 
   void change_coll(int delta);
   void change_line(int delta);
@@ -91,6 +81,8 @@ private:
   int m_y;
   int m_height;
   int m_width;
+  std::string m_file_name;
+
   size_t starting_line;
   size_t starting_coll;
   // all the data
@@ -110,12 +102,39 @@ public:
   const int x() const { return m_y; }
   const int y() const { return m_y; }
 
+  void to_buffer(std::vector<std::vector<int>> &buff, size_t line) const;
+
 private:
   size_t m_height;
   size_t m_x;
   size_t m_y;
   size_t m_width;
   size_t current_line;
+};
+
+class Status {
+public:
+  Status(size_t win_height, size_t win_width);
+
+  const int height() const { return m_height; }
+  const int width() const { return m_width; }
+  const int x() const { return m_y; }
+  const int y() const { return m_y; }
+
+ 
+
+  std::string top;
+  std::string bot;
+
+  void update(Cursor *c, Textbox *t, EditorMode ed);
+  void send_msg(const std::string &msg);
+  void to_buffer(std::vector<std::vector<int>> &buff);
+
+private:
+  size_t m_x;
+  size_t m_y;
+  size_t m_width;
+  size_t m_height;
 };
 
 class Window {
@@ -130,9 +149,10 @@ public:
   const int width() const { return m_width; }
   const int x() const { return m_y; }
   const int y() const { return m_y; }
+  const EditorMode mode() const { return m_mode; }
 
-  void clear_buffer();
   void debug();
+  void refresh();
 
   // bufer is data that should be rendered
   std::vector<std::vector<int>> m_buffer;
@@ -148,10 +168,13 @@ private:
   int m_width;
   int m_x;
   int m_y;
+
+  EditorMode m_mode;
   void load_to_buffer(); // TODO:
   void load_status();
   void load_line_num();
 
+  void clear_buffer();
   void init_sub_sys();
 
   void init_buffer();
