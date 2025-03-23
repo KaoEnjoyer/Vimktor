@@ -45,7 +45,8 @@ void Window::init_sub_sys() {
   m_linenums = new Linenumbers(m_height, m_width);
   m_status = new Status(m_height, m_width);
   m_textbox = new Textbox(m_height, m_width);
-  m_cursor = new Cursor(m_textbox->x(), m_textbox->width(), m_textbox->y(), m_textbox->height(), m_textbox->data.size());
+  m_cursor = new Cursor(m_textbox->x(), m_textbox->width(), m_textbox->y(),
+                        m_textbox->height(), m_textbox->data.size());
 }
 
 void Window::init_buffer() {
@@ -59,7 +60,7 @@ void Window::init_buffer() {
 void Window::refresh() {
 
   m_status->update(m_cursor, m_textbox, m_mode);
-   
+
   load_to_buffer();
 }
 
@@ -103,7 +104,10 @@ void Window::load_to_buffer() {
   m_status->to_buffer(m_buffer);
 }
 
-void Window::handleInput(char ch) {
+void Window::handleInput(char ch) { basicInput(ch); }
+
+void Window::basicInput(char ch) {
+
   switch (ch) {
   case 'k':
     m_cursor->move(Up);
@@ -117,8 +121,16 @@ void Window::handleInput(char ch) {
   case 'l':
     m_cursor->move(Right);
     break;
+  case _ESCAPE_KEY:
+    SetMode(Normal);
+    break;
+  default:
+    break;
   }
 }
+
+void Window::SetMode(EditorMode em) { m_mode = em; }
+
 Cursor::Cursor(int min_x, int max_x, int min_y, int max_y, int max_line) {
   this->max_y = max_x;
   this->min_y = min_y;
@@ -136,23 +148,26 @@ Cursor::Cursor() {
   m_y = 0;
 }
 
-void Cursor::move(CursorDirection dir){
+void Cursor::move(CursorDirection dir) {
   switch (dir) {
-   case Up:
-      //TODO: maksymalna pozycja cursora w zalznosci od size lini danej
-      if(m_y > min_y)m_y--;
+  case Up:
+    // TODO: maksymalna pozycja cursora w zalznosci od size lini danej
+    if (m_y > min_y)
+      m_y--;
     break;
-    case Down:
-      if(m_y + 1 <= max_y)m_y++;
+  case Down:
+    if (m_y + 1 <= max_y)
+      m_y++;
     break;
-    case Left:
-    if(m_x - 1 >= min_x)m_x--;
+  case Left:
+    if (m_x - 1 >= min_x)
+      m_x--;
     break;
-    case Right:
-    if(m_x + 1 < max_x)m_x++;
+  case Right:
+    if (m_x + 1 < max_x)
+      m_x++;
     break;
   }
-
 }
 
 Status::Status(size_t win_height, size_t win_width) {
@@ -288,6 +303,19 @@ void Textbox::load_file(const std::string &file_name) {
   }
   m_file_name = file_name;
   file.close();
+}
+
+void Textbox::load_vector(const std::vector<std::string> &txt) {
+
+  data.clear(); 
+     
+
+  for (int i = 0; i < txt.size(); i++) {
+    for (int j = 0; j < txt[i].size(); j++) {
+       
+
+    }
+  }
 }
 
 Linenumbers::Linenumbers(size_t win_height, size_t win_width) {

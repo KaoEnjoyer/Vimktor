@@ -9,6 +9,8 @@
 #define _LINE_NUM_DEFAULT_WIDTH 5
 #define _STATUS_DEFAULT_HEIGHT 2
 
+#define _ESCAPE_KEY 27
+
 //          BUFFER:
 // ----------------------------------------
 // |l|                                    |
@@ -41,16 +43,15 @@ enum EditorMode {
 class Cursor {
 public:
   Cursor();
-  Cursor(int min_x, int max_x, int min_y, int max_y , int max_line);
+  Cursor(int min_x, int max_x, int min_y, int max_y, int max_line);
   void move(CursorDirection dir);
 
   const inline int x() const { return m_x; }
   const inline int y() const { return m_y; }
-  const inline int line() const{ return m_line;}
-  const inline int maxline() const {return max_line;}
-  
-  const inline int dx() const {return m_line+m_x; }
-  
+  const inline int line() const { return m_line; }
+  const inline int maxline() const { return max_line; }
+
+  const inline int dx() const { return m_line + m_x; }
 
 private:
   bool IsInWindowi();
@@ -73,13 +74,15 @@ public:
   int y() const { return m_y; }
   int line() const { return starting_line; }
   int column() const { return starting_coll; }
-  
+
   std::string file_name() const { return m_file_name; };
   std::vector<std::string> data;
 
   void to_buffer(std::vector<std::vector<int>> &buff) const;
 
   void load_file(const std::string &file_name);
+
+  void load_vector(const std::vector<std::string> &txt);
 
   void change_coll(int delta);
   void change_line(int delta);
@@ -129,8 +132,6 @@ public:
   const int x() const { return m_x; }
   const int y() const { return m_y; }
 
- 
-
   std::string top;
   std::string bot;
 
@@ -159,22 +160,22 @@ public:
   inline const int y() const { return m_y; }
   inline const EditorMode mode() const { return m_mode; }
 
+  void SetMode(EditorMode em);
 
   void debug();
-  void refresh();
+  virtual void refresh();
 
   virtual void handleInput(char ch);
   // bufer is data that should be rendered
   std::vector<std::vector<int>> m_buffer;
 
-  friend FileManager;
   // WINDOW *m_win;
   Textbox *m_textbox;
   Cursor *m_cursor;
   Status *m_status;
   Linenumbers *m_linenums;
 
-private:
+protected:
   int m_height;
   int m_width;
   int m_x;
@@ -185,6 +186,7 @@ private:
   void load_status();
   void load_line_num();
 
+  void basicInput(char ch);
   void clear_buffer();
   void init_sub_sys();
 
