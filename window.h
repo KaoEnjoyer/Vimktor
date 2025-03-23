@@ -41,14 +41,21 @@ enum EditorMode {
 class Cursor {
 public:
   Cursor();
-  Cursor(int min_x, int max_x, int min_y, int max_y);
+  Cursor(int min_x, int max_x, int min_y, int max_y , int max_line);
   void move(CursorDirection dir);
 
-  const int x() const { return m_x; }
-  const int y() const { return m_y; }
+  const inline int x() const { return m_x; }
+  const inline int y() const { return m_y; }
+  const inline int line() const{ return m_line;}
+  const inline int maxline() const {return max_line;}
+  
+  const inline int dx() const {return m_line+m_x; }
+  
 
 private:
-  bool IsInWindow();
+  bool IsInWindowi();
+  size_t m_line;
+  size_t max_line;
   size_t min_x;
   size_t min_y;
   size_t max_x;
@@ -66,6 +73,7 @@ public:
   int y() const { return m_y; }
   int line() const { return starting_line; }
   int column() const { return starting_coll; }
+  
   std::string file_name() const { return m_file_name; };
   std::vector<std::string> data;
 
@@ -118,7 +126,7 @@ public:
 
   const int height() const { return m_height; }
   const int width() const { return m_width; }
-  const int x() const { return m_y; }
+  const int x() const { return m_x; }
   const int y() const { return m_y; }
 
  
@@ -145,18 +153,21 @@ public:
 
   ~Window(); // TODO:delete all the pointers
   // getters
-  const int height() const { return m_height; }
-  const int width() const { return m_width; }
-  const int x() const { return m_y; }
-  const int y() const { return m_y; }
-  const EditorMode mode() const { return m_mode; }
+  inline const int height() const { return m_height; }
+  inline const int width() const { return m_width; }
+  inline const int x() const { return m_y; }
+  inline const int y() const { return m_y; }
+  inline const EditorMode mode() const { return m_mode; }
+
 
   void debug();
   void refresh();
 
+  virtual void handleInput(char ch);
   // bufer is data that should be rendered
   std::vector<std::vector<int>> m_buffer;
 
+  friend FileManager;
   // WINDOW *m_win;
   Textbox *m_textbox;
   Cursor *m_cursor;

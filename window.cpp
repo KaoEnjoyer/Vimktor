@@ -45,7 +45,7 @@ void Window::init_sub_sys() {
   m_linenums = new Linenumbers(m_height, m_width);
   m_status = new Status(m_height, m_width);
   m_textbox = new Textbox(m_height, m_width);
-  m_cursor = new Cursor(0, m_width, 0, m_height);
+  m_cursor = new Cursor(m_textbox->x(), m_textbox->width(), m_textbox->y(), m_textbox->height(), m_textbox->data.size());
 }
 
 void Window::init_buffer() {
@@ -59,7 +59,7 @@ void Window::init_buffer() {
 void Window::refresh() {
 
   m_status->update(m_cursor, m_textbox, m_mode);
-
+   
   load_to_buffer();
 }
 
@@ -86,6 +86,14 @@ void Window::debug() {
   fprintf(output, "Win x: %d, y: %d, h: %d, w%d \n", this->x(), this->y(),
           this->height(), this->width());
 
+  for (int i = 0; i < m_buffer.size(); i++) {
+    for (int j = 0; j < m_buffer[i].size(); j++) {
+      fprintf(output, "%c", m_buffer[i][j]);
+    }
+    fprintf(output, "s:%d", m_buffer[i].size());
+    fprintf(output, "\n");
+  }
+
   fclose(output);
 }
 
@@ -95,19 +103,56 @@ void Window::load_to_buffer() {
   m_status->to_buffer(m_buffer);
 }
 
-Cursor::Cursor(int min_x, int max_x, int min_y, int max_y) {
+void Window::handleInput(char ch) {
+  switch (ch) {
+  case 'k':
+    m_cursor->move(Up);
+    break;
+  case 'j':
+    m_cursor->move(Down);
+    break;
+  case 'h':
+    m_cursor->move(Left);
+    break;
+  case 'l':
+    m_cursor->move(Right);
+    break;
+  }
+}
+Cursor::Cursor(int min_x, int max_x, int min_y, int max_y, int max_line) {
   this->max_y = max_x;
   this->min_y = min_y;
   this->max_x = max_x;
   this->min_x = min_x;
-  m_x = 0;
-  m_y = 0;
+  m_x = min_x;
+  m_y = min_y;
+  m_line = 0;
+  this->max_line = max_line;
 }
 
 Cursor::Cursor() {
 
   m_x = 0;
   m_y = 0;
+}
+
+void Cursor::move(CursorDirection dir){
+  switch (dir) {
+   case Up:
+      //TODO: maksymalna pozycja cursora w zalznosci od size lini danej
+      if(m_y > min_y)m_y--;
+    break;
+    case Down:
+      if(m_y + 1 <= max_y)m_y++;
+    break;
+    case Left:
+    if(m_x - 1 >= min_x)m_x--;
+    break;
+    case Right:
+    if(m_x + 1 < max_x)m_x++;
+    break;
+  }
+
 }
 
 Status::Status(size_t win_height, size_t win_width) {
@@ -120,10 +165,15 @@ Status::Status(size_t win_height, size_t win_width) {
   bot = "hej jestem bot status";
 }
 
-void Status::send_msg(const std::string &msg) { bot = msg; }
+void Status::send_msg(const std::string &msg) {
+  bot.resize(m_width);
+  for (int i = 0; i < bot.size(); i++)
+    bot[i] = ' ';
+  bot.replace(0, msg.size(), msg);
+}
 
 void Status::to_buffer(std::vector<std::vector<int>> &buff) {
-
+  // TODO: check this
   for (int x = m_x; x < m_width; x++) {
     if (x >= buff.size()) {
       return;
@@ -137,7 +187,8 @@ void Status::to_buffer(std::vector<std::vector<int>> &buff) {
 void Status::update(Cursor *c, Textbox *t, EditorMode ed) {
 
   top.resize(m_width);
-  for(int i = 0 ; i < top.size(); i++)top[i] = ' ';
+  for (int i = 0; i < top.size(); i++)
+    top[i] = ' ';
   std::string temp;
   temp = "line: " + std::to_string(c->x()) + " col: " + std::to_string(c->y());
   std::string temp2;
@@ -166,9 +217,8 @@ void Status::update(Cursor *c, Textbox *t, EditorMode ed) {
   temp2 += "     " + t->file_name();
 
   top.replace(0, temp2.size(), temp2);
-  
-  top.replace(temp2.size()+1, temp.size() + 5, temp); 
 
+  top.replace(temp2.size() + 1, temp.size() + 5, temp);
 }
 
 Textbox::Textbox(size_t win_height, size_t win_width) {

@@ -19,14 +19,17 @@ int main() {
   w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
   w.m_textbox->data.push_back("wwwwwwwwdawdadad");
 
-  w.m_textbox->load_file("textbox.txt");
+  w.m_textbox->load_file("window.h");
 
   w.m_status->send_msg("PROSZE DZIALAJ");
 
-  while (r.get_input() != 'q') {
+  char ch;
+  while (ch != 'q') {
+    ch = r.get_input();
     w.refresh();
     r.renderWindow(w);
     w.debug();
+    w.handleInput(ch);
   }
   FILE *bob;
   bob = fopen("textbox.txt", "w");
