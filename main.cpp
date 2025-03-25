@@ -3,23 +3,13 @@
 #include <cstdio>
 #include <iostream>
 #include <ncurses.h>
+#include "filemanager.h"
 
 int main() {
   Renderer r;
-  Window w;
+ // Window w;
+  FileManager w;
 
-  w.m_textbox->data.push_back("123456789");
-  w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
-  w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
-  w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
-  w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
-  w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
-  w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
-  w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
-  w.m_textbox->data.push_back("wwwwwwwwwwwwwwww");
-  w.m_textbox->data.push_back("wwwwwwwwdawdadad");
-
-  w.m_textbox->load_file("window.h");
 
   w.m_status->send_msg("PROSZE DZIALAJ");
 

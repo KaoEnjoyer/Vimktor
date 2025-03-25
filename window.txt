@@ -1,52 +1,27 @@
-Status x: 0, y: 47, h: 2, w157 
-Text x: 5, y: 0, h: 47, w152 
-Win x: 0, y: 0, h: 49, w157 
-   0 123456789                                                                                                                                               s:157
-   1 wwwwwwwwwwwwwwww                                                                                                                                        s:157
-   2 wwwwwwwwwwwwwwww                                                                                                                                        s:157
-   3 wwwwwwwwwwwwwwww                                                                                                                                        s:157
-   4 wwwwwwwwwwwwwwww                                                                                                                                        s:157
-   5 wwwwwwwwwwwwwwww                                                                                                                                        s:157
-   6 wwwwwwwwwwwwwwww                                                                                                                                        s:157
-   7 wwwwwwwwwwwwwwww                                                                                                                                        s:157
-   8 wwwwwwwwwwwwwwww                                                                                                                                        s:157
-   9 wwwwwwwwdawdadad                                                                                                                                        s:157
-  10 #pragma once                                                                                                                                            s:157
-  11 #include <cstddef>                                                                                                                                      s:157
-  12 #include <cstdlib>                                                                                                                                      s:157
-  13 #include <fstream>                                                                                                                                      s:157
-  14 #include <ncurses.h>                                                                                                                                    s:157
-  15 #include <string>                                                                                                                                       s:157
-  16 #include <vector>                                                                                                                                       s:157
-  17                                                                                                                                                         s:157
-  18 #define _LINE_NUM_DEFAULT_WIDTH 5                                                                                                                       s:157
-  19 #define _STATUS_DEFAULT_HEIGHT 2                                                                                                                        s:157
-  20                                                                                                                                                         s:157
-  21 //          BUFFER:                                                                                                                                     s:157
-  22 // ----------------------------------------                                                                                                             s:157
-  23 // |l|                                    |                                                                                                             s:157
-  24 // |i|                                    |                                                                                                             s:157
-  25 // |n|                                    |                                                                                                             s:157
-  26 // |e|                                    |                                                                                                             s:157
-  27 // | |                                    |                                                                                                             s:157
-  28 // |n|             TextBox                |                                                                                                             s:157
-  29 // |u|                                    |                                                                                                             s:157
-  30 // |m|                                    |                                                                                                             s:157
-  31 // |--------------------------------------|                                                                                                             s:157
-  32 // |status                                |                                                                                                             s:157
-  33 // |                                      |                                                                                                             s:157
-  34 // ----------------------------------------                                                                                                             s:157
-  35 //                                                                                                                                                      s:157
-  36                                                                                                                                                         s:157
-  37 enum CursorDirection {                                                                                                                                  s:157
-  38   Up,                                                                                                                                                   s:157
-  39   Down,                                                                                                                                                 s:157
-  40   Left,                                                                                                                                                 s:157
-  41   Right,                                                                                                                                                s:157
-  42 };                                                                                                                                                      s:157
-  43                                                                                                                                                         s:157
-  44 enum EditorMode {                                                                                                                                       s:157
-  45   Input,                                                                                                                                                s:157
-  46   Normal,                                                                                                                                               s:157
-mode: None     window.h line: 8 col: 5                                                                                                                       s:157
-PROSZE DZIALAJ                                                                                                                                               s:157
+Status x: 0, y: 22, h: 2, w80 
+Text x: 5, y: 0, h: 22, w75 
+Win x: 0, y: 0, h: 24, w80 
+   0 renderer.cpp                                                               s:80
+   1 textbox.txt                                                                s:80
+   2 .git                                                                       s:80
+   3 window.cpp                                                                 s:80
+   4 doedycji.txt                                                               s:80
+   5 window.h                                                                   s:80
+   6 window.txt                                                                 s:80
+   7 vimktor                                                                    s:80
+   8 utils.h                                                                    s:80
+   9 filemanager.h                                                              s:80
+  10 renderer.h                                                                 s:80
+  11 main.cpp                                                                   s:80
+  12 Makefile                                                                   s:80
+  13 README.md                                                                  s:80
+  14 filemanager.cpp                                                            s:80
+  15                                                                            s:80
+  16                                                                            s:80
+  17                                                                            s:80
+  18                                                                            s:80
+  19                                                                            s:80
+  20                                                                            s:80
+  21                                                                            s:80
+mode: None     no file s                                                        s:80
+PROSZE DZIALAJ                                                                  s:80
