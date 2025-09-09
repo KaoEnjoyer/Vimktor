@@ -1,14 +1,15 @@
 #include "vimktor.h"
+#include <cassert>
 #include <cstdint>
 #include <cstdio>
 #include <fstream>
-Vimktor::Vimktor() {}
 
 void Vimktor::Init() {
-  InitCurses();
 
+  InitCurses();
+  window = stdscr;
 #ifdef DEBUG_MODE
-  LoadFile("test.txt");
+  LoadFile("test.cs");
   logFile.open("log_file.txt", std::ios::out);
 #endif
 }
@@ -17,6 +18,7 @@ void Vimktor::End() {
 #ifdef DEBUG_MODE
   logFile.close();
 #endif
+
   endwin();
 }
 
@@ -45,7 +47,6 @@ VimktorErr_t Vimktor::RenderWindow(WINDOW *window, uint16_t x, uint16_t y,
     return MEMORY_ERROR;
 
   for (int i = 0; i < height; i++) {
-
     RenderLine(window, x, y + i, tb[txt_offset_y + i]);
   }
   return VIMKTOR_OK;
@@ -54,9 +55,11 @@ VimktorErr_t Vimktor::RenderWindow(WINDOW *window, uint16_t x, uint16_t y,
 VimktorErr_t Vimktor::RenderLine(WINDOW *window, uint16_t x, uint16_t y,
                                  const std::vector<glyph_t> &buff) {
   int col = buff.size() - txt_offset_x;
+
   for (int i = 0; i < col; i++) {
-    move(y, col + i);
-    waddch(window, buff[col + i].ch);
+    move(y, txt_offset_x + i);
+    waddch(window, buff[txt_offset_x + i].ch);
+
     // TODO: add colors
   }
 
@@ -89,3 +92,12 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
 
   return VIMKTOR_OK;
 };
+
+void Vimktor::Loop() {
+  while (1) {
+    char ch = getch();
+    RenderWindow(window, 0, 0, tb);
+    if (ch == 'q')
+      break;
+  }
+}

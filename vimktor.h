@@ -17,10 +17,10 @@ enum VimktorErr_t {
 
 class Vimktor {
 public:
-  Vimktor();
+  Vimktor() : window(stdscr), txt_offset_x(0), txt_offset_y(0) {}
   void Init();
   void End();
-
+  void Loop();
   // private:
   VimktorErr_t LoadFile(const std::string &fileName);
   VimktorErr_t InitCurses();
@@ -29,10 +29,10 @@ public:
 
   VimktorErr_t RenderLine(WINDOW *window, uint16_t x, uint16_t y,
                           const std::vector<glyph_t> &buff);
-  WINDOW *window = stdscr;
-  uint64_t txt_offset_y = 0;
-  uint64_t txt_offset_x = 0;
-  textBuffer tb; 
+  WINDOW *window;
+  uint64_t txt_offset_y;
+  uint64_t txt_offset_x;
+  textBuffer tb;
 #ifdef DEBUG_MODE
   void DebugLog(const std::string &msg);
   std::fstream logFile;
