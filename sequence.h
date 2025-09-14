@@ -36,7 +36,7 @@ public:
   void add_line();
 
   inline const size_t size() { return data.size(); }
-  inline void reserve(size_t n) { this->data.reserve(n); }
+  inline void reserve(size_t n) { data.reserve(n); }
 
   glyph_t &getGlyphAt(size_t col, size_t row);
 
