@@ -1,3 +1,4 @@
+
 #include "vimktor.h"
 #include <cassert>
 #include <cstdint>
@@ -7,10 +8,12 @@
 void Vimktor::Init() {
 
   InitCurses();
-  window = stdscr;
+  m_window = stdscr;
 #ifdef DEBUG_MODE
+
   LoadFile("test.cs");
   logFile.open("log_file.txt", std::ios::out);
+
 #endif
 }
 
@@ -32,8 +35,7 @@ VimktorErr_t Vimktor::InitCurses() {
   return VIMKTOR_OK;
 }
 
-VimktorErr_t Vimktor::RenderWindow(WINDOW *window, uint16_t x, uint16_t y,
-                                   textBuffer &tb) {
+VimktorErr_t Vimktor::RenderWindow(WINDOW *window, uint16_t x, uint16_t y) {
   uint16_t maxX, maxY;
   getmaxyx(window, maxY, maxX);
 
@@ -43,22 +45,22 @@ VimktorErr_t Vimktor::RenderWindow(WINDOW *window, uint16_t x, uint16_t y,
   uint16_t height = maxY - y;
   uint16_t width = maxX - x;
 
-  if (txt_offset_y > tb.size())
+  if (m_txt_offset_y > m_sequence.size())
     return MEMORY_ERROR;
 
   for (int i = 0; i < height; i++) {
-    RenderLine(window, x, y + i, tb[txt_offset_y + i]);
+    RenderLine(window, x, y + i);
   }
   return VIMKTOR_OK;
 }
 
-VimktorErr_t Vimktor::RenderLine(WINDOW *window, uint16_t x, uint16_t y,
-                                 const std::vector<glyph_t> &buff) {
-  int col = buff.size() - txt_offset_x;
+VimktorErr_t Vimktor::RenderLine(WINDOW *window, uint16_t x, uint16_t y) {
+  int col = m_sequence.size() - m_txt_offset_x;
 
   for (int i = 0; i < col; i++) {
-    move(y, txt_offset_x + i);
-    waddch(window, buff[txt_offset_x + i].ch);
+
+    move(y, m_txt_offset_x + i);
+    waddch(window, m_sequence[y][m_txt_offset_x + i].ch);
 
     // TODO: add colors
   }
@@ -73,30 +75,14 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
     return FILE_ERROR;
   }
 
-  tb.clear();
-  tb.reserve(1000);
-  size_t line_num = 0;
-  std::string line;
-  while (file >> line) {
-    tb.push_back(std::vector<glyph_t>());
-
-    for (int i = 0; i < line.size(); i++) {
-
-      glyph_t g;
-      g.ch = line[i];
-      tb[line_num].push_back(g);
-    }
-
-    line_num++;
-  }
-
+  m_sequence = Sequence(file);
   return VIMKTOR_OK;
 };
 
 void Vimktor::Loop() {
   while (1) {
     char ch = getch();
-    RenderWindow(window, 0, 0, tb);
+    RenderWindow(m_window, 0, 0);
     if (ch == 'q')
       break;
   }
