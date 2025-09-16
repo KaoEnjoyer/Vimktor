@@ -1,3 +1,5 @@
+#pragma once
+#include "common.h"
 #include <cstdint>
 #include <fstream>
 #include <string>
@@ -30,26 +32,35 @@ typedef struct glyphStruct {
  * Sequence class is abstraction over character sequence edited by Vimtkor
  * in current implementation this abstraction is't really needed, but in futuer
  * this may be changed for now 2D vector of glyph_t is fast enaught
+ *
+ *
+ * Sequence's methods like GetLineAt will give realative line to cursors page id
+ * for eg. if m_cursor.pagePos.y = 33
+ * GetLineAt(0) would return line nr. 33
+ *
  * **/
+
 class Sequence {
 public:
   Sequence() = default;
   Sequence(std::fstream &file);
 
-  inline const size_t size() { return data.size(); }
-  inline void reserve(size_t n) { data.reserve(n); }
+  VimktorErr_t LoadFile(std::fstream &file);
 
-  glyph_t &getGlyphAt(size_t col, size_t row);
-	void addGlyphAt(size_t col , size_t row , glyph_t glyph);
+  inline const size_t Size() { return data.size(); }
+  inline void Reserve(size_t n) { data.reserve(n); }
 
-  std::vector<glyph_t> &getLineAt(size_t line);
+  glyph_t GetGlyphAt(size_t col, size_t line);
+  void AddGlyphAt(size_t col, size_t line, glyph_t glyph);
+
+  std::vector<glyph_t> &GetLineAt(size_t line);
   std::vector<glyph_t> &operator[](size_t line);
 
+  std::string GetStringAt(size_t line);
 
-  std::string getStringAt(size_t line);
 
-  void addLine(const std::string &str);
-  void setLineTo(size_t line, const std::string &str);
+  void AddLine(const std::string &str);
+  void SetLineTo(size_t line, const std::string &str);
 
 private:
   std::vector<std::vector<glyph_t>> data;
