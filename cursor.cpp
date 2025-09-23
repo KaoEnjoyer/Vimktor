@@ -8,7 +8,6 @@ VimktorErr_t Cursor::Move(CursorDirection direction) {
   if (direction == UP) {
     cursorPos.y--;
   } else if (direction == DOWN) {
-
     cursorPos.y++;
   } else if (direction == LEFT) {
     cursorPos.x--;

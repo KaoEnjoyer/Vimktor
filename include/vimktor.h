@@ -33,12 +33,15 @@ public:
 
   VimktorErr_t GetInput();
   VimktorErr_t HandleEvents(VimktorEvent event);
-  inline Cursor &GetCursor() { return m_cursor; }
+  // cursor
+  position_t m_cursorPos;
+  position_t m_pagePos;
+	//TODO :
+  VimktorErr_t CursorMove(CursorDirection dir) noexcept;
   // variables
   WINDOW *m_window;
-	std::unique_ptr<Sequence> m_sequence;
+  std::unique_ptr<Sequence> m_sequence;
   VimktorMode_t m_mode;
-  Cursor m_cursor;
 #ifdef DEBUG_MODE
   void DebugLog(const std::string &msg);
   std::fstream m_logFile;

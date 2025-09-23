@@ -11,7 +11,6 @@
 #include <memory>
 
 void Vimktor::Init() {
-  m_cursor.SetSequence(m_sequence.get());
 
   InitCurses();
   m_window = stdscr;
@@ -56,9 +55,7 @@ VimktorErr_t Vimktor::RenderWindow() {
 }
 
 VimktorErr_t Vimktor::RenderCursor() {
-  position_t cusorPos = m_cursor.GetCursorPos();
-
-  wmove(m_window, cusorPos.y, cusorPos.x);
+  wmove(m_window, m_cursorPos.y, m_cursorPos.x);
 
   return VIMKTOR_OK;
 }
@@ -66,7 +63,7 @@ VimktorErr_t Vimktor::RenderCursor() {
 VimktorErr_t Vimktor::RenderText(uint16_t x, uint16_t y, uint16_t width,
                                  uint16_t height) {
 
-  position_t pageOffset = m_cursor.GetCursorPos();
+  position_t pageOffset = m_pagePos;
   for (uint16_t i_y = y; i_y < height; i_y++) {
     for (uint16_t i_x = x; i_x < width; i_x++) {
 
@@ -111,16 +108,16 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent event) {
   VimktorErr_t err = VIMKTOR_OK;
   switch (event) {
   case CURSOR_DOWN:
-    err = GetCursor().Move(DOWN);
+    err = CursorMove(DOWN);
     break;
   case CURSOR_UP:
-    GetCursor().Move(UP);
+    CursorMove(UP);
     break;
   case CURSOR_RIGHT:
-    GetCursor().Move(RIGHT);
+    CursorMove(RIGHT);
     break;
   case CURSOR_LEFT:
-    GetCursor().Move(LEFT);
+    CursorMove(LEFT);
     break;
   }
   return VIMKTOR_OK;
@@ -139,7 +136,7 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
 void Vimktor::Loop() {
   while (1) {
     RenderWindow();
-		GetInput();
+    GetInput();
   }
 }
 // gc
@@ -149,3 +146,24 @@ void Vimktor::DebugLog(const std::string &msg) {
   m_logFile << msg << " at: " << __FILE__ << " " << __LINE__ << std::endl;
 }
 #endif
+
+VimktorErr_t Vimktor::CursorMove(CursorDirection dir) noexcept {
+
+  position_t backUp = m_cursorPos;
+  if (dir == UP) {
+    m_cursorPos.y--;
+  } else if (dir == DOWN) {
+
+    m_cursorPos.y++;
+  } else if (dir == LEFT) {
+    m_cursorPos.x--;
+  } else if (dir == RIGHT) {
+    m_cursorPos.x++;
+  }
+  // if (!IsPosValid()) {
+  //   cursorPos = backUp;
+  // } else {
+  //   cursorPosPrev = backUp;
+  // }
+  return VIMKTOR_OK;
+}
