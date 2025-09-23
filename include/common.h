@@ -40,6 +40,18 @@ typedef struct positionStruct {
     return *this;
   }
 
+  inline positionStruct &operator-(positionStruct &other) {
+    x -= other.x;
+    y -= other.y;
+    return *this;
+  }
+
+  inline positionStruct &operator+(positionStruct &other) {
+    x += other.x;
+    y += other.y;
+    return *this;
+  }
+
 } position_t;
 
 enum VimktorEvent {
@@ -48,6 +60,6 @@ enum VimktorEvent {
   CURSOR_LEFT,
   CURSOR_RIGHT,
   ADD_LETTER,
-	EVENT_NONE,
-	EVENT_CLOSE
+  EVENT_NONE,
+  EVENT_CLOSE
 };

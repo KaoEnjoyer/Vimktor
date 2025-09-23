@@ -17,14 +17,27 @@ std::vector<glyph_t> &Sequence::GetLineAt(size_t line) {
   return (data[line]);
 }
 
-glyph_t Sequence::GetGlyphAt(size_t col, size_t line) {
-  assert(line < data.size());
+std::expected<glyph_t *, VimktorErr_t> Sequence::GetGlyphAt(size_t col,
+                                                            size_t line) {
 
-  if (col >= data[line].size())
-    return glyph_t('\0');
-  return data[line][col];
+  if (line >= data.size() || col >= data[line].size()) {
+    return std::unexpected(INVALID_ARRGUMENT);
+  }
+
+  return &data[line][col];
 }
 
+std::expected<glyph_t *, VimktorErr_t> Sequence::GetGlyphAtRel(size_t col,
+                                                               size_t line) {
+
+  col = col + m_pagePos.x;
+  line = col + m_pagePos.y;
+  if (line >= data.size() || col >= data[line].size()) {
+    return std::unexpected(INVALID_ARRGUMENT);
+  }
+
+  return &data[line][col];
+}
 void Sequence::SetLineTo(size_t line, const std::string &str) {
   assert(data.size() < line);
 
@@ -59,6 +72,28 @@ void Sequence::AddLine(const std::string &str) {
   }
 }
 
+VimktorErr_t Sequence::CursorMove(CursorDirection dir) noexcept {
+
+  position_t backUp = m_cursorPos;
+  if (dir == UP) {
+    m_cursorPos.y--;
+  } else if (dir == DOWN) {
+
+    m_cursorPos.y++;
+  } else if (dir == LEFT) {
+    m_cursorPos.x--;
+  } else if (dir == RIGHT) {
+    m_cursorPos.x++;
+  }
+  if (CursorPosValid() != VIMKTOR_OK) {
+    m_cursorPos = backUp;
+  } else {
+    if (dir == LEFT || dir == RIGHT)
+      m_cursorPosPrev = backUp;
+  }
+  return VIMKTOR_OK;
+}
+
 void Sequence::AddGlyphAt(size_t col, size_t line, glyph_t glyph) {
   auto &buffer = GetLineAt(line);
 
@@ -79,6 +114,18 @@ VimktorErr_t Sequence::LoadFile(std::fstream &file) {
     for (char ch : line) {
       element.emplace_back(glyph_t(ch));
     }
+  }
+  return VIMKTOR_OK;
+}
+
+VimktorErr_t Sequence::CursorPosValid() {
+  if (m_cursorPos.x < 0 || m_cursorPos.y < 0)
+    return MEMORY_ERROR;
+  if (m_cursorPos.y >= Size()) {
+    return MEMORY_ERROR;
+  }
+  if (m_cursorPos.x >= GetLineAt(m_cursorPos.y).size()) {
+    return MEMORY_ERROR;
   }
   return VIMKTOR_OK;
 }

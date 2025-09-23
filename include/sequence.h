@@ -1,6 +1,7 @@
 #pragma once
 #include "common.h"
 #include <cstdint>
+#include <expected>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -39,7 +40,6 @@ typedef struct glyphStruct {
  * GetLineAt(0) would return line nr. 33
  *
  * **/
-
 class Sequence {
 public:
   Sequence() = default;
@@ -50,7 +50,10 @@ public:
   inline const size_t Size() { return data.size(); }
   inline void Reserve(size_t n) { data.reserve(n); }
 
-  glyph_t GetGlyphAt(size_t col, size_t line);
+  std::expected<glyph_t *, VimktorErr_t> GetGlyphAt(size_t col, size_t line);
+  std::expected<glyph_t *, VimktorErr_t>
+  GetGlyphAtRel(size_t col,
+                size_t line); // relative , you dont need to consider pageOffset
   void AddGlyphAt(size_t col, size_t line, glyph_t glyph);
 
   std::vector<glyph_t> &GetLineAt(size_t line);
@@ -58,10 +61,24 @@ public:
 
   std::string GetStringAt(size_t line);
 
-
   void AddLine(const std::string &str);
   void SetLineTo(size_t line, const std::string &str);
 
+  // cursor
+
+  VimktorErr_t CursorMove(CursorDirection dir) noexcept;
+
+  inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
+  inline const position_t &GetRelativeCursorPos() noexcept {
+
+    return (m_cursorPos - m_pagePos);
+  }
+  position_t m_cursorPos;
+  position_t m_cursorPosPrev;
+  position_t m_pagePos;
+
 private:
+  VimktorErr_t CursorPosValid();
+
   std::vector<std::vector<glyph_t>> data;
 };

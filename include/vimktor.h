@@ -10,13 +10,9 @@
 class Vimktor {
   // methods
 public:
-  Vimktor() : m_window(stdscr), m_mode(NORMAL) {
-    m_sequence = std::make_unique<Sequence>();
-  }
+  Vimktor() : m_window(stdscr), m_mode(NORMAL) {}
   Vimktor(WINDOW *window, std::fstream &file)
-      : m_window(window), m_mode(NORMAL) {
-    m_sequence = std::make_unique<Sequence>(file);
-  }
+      : m_window(window), m_mode(NORMAL) {}
 
   void Init();
   void End();
@@ -33,15 +29,13 @@ public:
 
   VimktorErr_t GetInput();
   VimktorErr_t HandleEvents(VimktorEvent event);
-  // cursor
-  position_t m_cursorPos;
-  position_t m_pagePos;
-	//TODO :
-  VimktorErr_t CursorMove(CursorDirection dir) noexcept;
   // variables
   WINDOW *m_window;
-  std::unique_ptr<Sequence> m_sequence;
+  Sequence m_sequence;
   VimktorMode_t m_mode;
+
+  // cursor
+
 #ifdef DEBUG_MODE
   void DebugLog(const std::string &msg);
   std::fstream m_logFile;

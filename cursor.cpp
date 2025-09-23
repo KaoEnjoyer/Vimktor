@@ -26,3 +26,4 @@ bool Cursor::IsPosValid() {
   return (m_sequence->Size() >= cursorPos.y) &&
          ((*m_sequence)[cursorPos.y].size() >= cursorPos.x);
 }
+

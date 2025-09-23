@@ -55,7 +55,8 @@ VimktorErr_t Vimktor::RenderWindow() {
 }
 
 VimktorErr_t Vimktor::RenderCursor() {
-  wmove(m_window, m_cursorPos.y, m_cursorPos.x);
+  position_t cursor = m_sequence.GetRelativeCursorPos();
+  wmove(m_window, cursor.y, cursor.x);
 
   return VIMKTOR_OK;
 }
@@ -63,15 +64,13 @@ VimktorErr_t Vimktor::RenderCursor() {
 VimktorErr_t Vimktor::RenderText(uint16_t x, uint16_t y, uint16_t width,
                                  uint16_t height) {
 
-  position_t pageOffset = m_pagePos;
   for (uint16_t i_y = y; i_y < height; i_y++) {
     for (uint16_t i_x = x; i_x < width; i_x++) {
 
-      glyph_t current =
-          m_sequence->GetGlyphAt(i_x + pageOffset.x, i_y + pageOffset.y);
       wmove(m_window, i_y, i_x);
-      if (current != '\0') {
-        waddch(m_window, current);
+      if (m_sequence.GetGlyphAtRel(i_x, i_y).has_value()) {
+        const auto *temp = m_sequence.GetGlyphAtRel(i_x, i_y).value();
+        waddch(m_window, temp->ch);
       } else {
         waddch(m_window, ' ');
       }
@@ -108,16 +107,19 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent event) {
   VimktorErr_t err = VIMKTOR_OK;
   switch (event) {
   case CURSOR_DOWN:
-    err = CursorMove(DOWN);
+    err = m_sequence.CursorMove(DOWN);
     break;
   case CURSOR_UP:
-    CursorMove(UP);
+    err = m_sequence.CursorMove(UP);
     break;
   case CURSOR_RIGHT:
-    CursorMove(RIGHT);
+    err = m_sequence.CursorMove(RIGHT);
     break;
   case CURSOR_LEFT:
-    CursorMove(LEFT);
+    err = m_sequence.CursorMove(LEFT);
+    break;
+  case EVENT_CLOSE:
+    throw("");
     break;
   }
   return VIMKTOR_OK;
@@ -129,7 +131,7 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
   if (!file.good()) {
     return FILE_ERROR;
   }
-  m_sequence->LoadFile(file);
+  m_sequence.LoadFile(file);
   return VIMKTOR_OK;
 };
 
@@ -146,24 +148,3 @@ void Vimktor::DebugLog(const std::string &msg) {
   m_logFile << msg << " at: " << __FILE__ << " " << __LINE__ << std::endl;
 }
 #endif
-
-VimktorErr_t Vimktor::CursorMove(CursorDirection dir) noexcept {
-
-  position_t backUp = m_cursorPos;
-  if (dir == UP) {
-    m_cursorPos.y--;
-  } else if (dir == DOWN) {
-
-    m_cursorPos.y++;
-  } else if (dir == LEFT) {
-    m_cursorPos.x--;
-  } else if (dir == RIGHT) {
-    m_cursorPos.x++;
-  }
-  // if (!IsPosValid()) {
-  //   cursorPos = backUp;
-  // } else {
-  //   cursorPosPrev = backUp;
-  // }
-  return VIMKTOR_OK;
-}

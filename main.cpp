@@ -8,6 +8,5 @@ int main() {
   app.Init();
   app.Loop();
   app.End();
-  //
   // app.m_sequence.setLineTo(0, "okej okej nic nie wiem nic nie wiem");
 }
