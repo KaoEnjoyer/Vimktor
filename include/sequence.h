@@ -61,12 +61,14 @@ public:
 
   std::string GetStringAt(size_t line);
 
+  inline const size_t LineSize(size_t line) { return data.at(line).size(); }
   void AddLine(const std::string &str);
   void SetLineTo(size_t line, const std::string &str);
 
   // cursor
 
   VimktorErr_t CursorMove(CursorDirection dir) noexcept;
+  VimktorErr_t CursorChangeLine(CursorDirection dir) noexcept;
 
   inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
   inline const position_t &GetRelativeCursorPos() noexcept {

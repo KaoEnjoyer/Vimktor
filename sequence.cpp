@@ -31,7 +31,7 @@ std::expected<glyph_t *, VimktorErr_t> Sequence::GetGlyphAtRel(size_t col,
                                                                size_t line) {
 
   col = col + m_pagePos.x;
-  line = col + m_pagePos.y;
+  line = line + m_pagePos.y;
   if (line >= data.size() || col >= data[line].size()) {
     return std::unexpected(INVALID_ARRGUMENT);
   }
@@ -76,10 +76,9 @@ VimktorErr_t Sequence::CursorMove(CursorDirection dir) noexcept {
 
   position_t backUp = m_cursorPos;
   if (dir == UP) {
-    m_cursorPos.y--;
+    CursorChangeLine(UP);
   } else if (dir == DOWN) {
-
-    m_cursorPos.y++;
+    CursorChangeLine(DOWN);
   } else if (dir == LEFT) {
     m_cursorPos.x--;
   } else if (dir == RIGHT) {
@@ -88,8 +87,24 @@ VimktorErr_t Sequence::CursorMove(CursorDirection dir) noexcept {
   if (CursorPosValid() != VIMKTOR_OK) {
     m_cursorPos = backUp;
   } else {
-    if (dir == LEFT || dir == RIGHT)
+    if (dir == LEFT || dir == RIGHT) {
       m_cursorPosPrev = backUp;
+    }
+  }
+  return VIMKTOR_OK;
+}
+
+VimktorErr_t Sequence::CursorChangeLine(CursorDirection dir) noexcept {
+  if (dir != UP && dir != DOWN)
+    return VimktorErr_t::INVALID_ARRGUMENT;
+  if (dir == UP)
+    m_cursorPos.y--;
+  if (dir == DOWN)
+    m_cursorPos.y++;
+  if (LineSize(m_cursorPosPrev.y) > LineSize(m_cursorPos.y)) {
+    m_cursorPos.x = LineSize(m_cursorPos.y);
+  } else {
+    m_cursorPos.x = m_cursorPosPrev.x;
   }
   return VIMKTOR_OK;
 }
@@ -119,12 +134,12 @@ VimktorErr_t Sequence::LoadFile(std::fstream &file) {
 }
 
 VimktorErr_t Sequence::CursorPosValid() {
-  if (m_cursorPos.x < 0 || m_cursorPos.y < 0)
+  if (m_cursorPos.x < 0 && m_cursorPos.y < 0)
     return MEMORY_ERROR;
   if (m_cursorPos.y >= Size()) {
     return MEMORY_ERROR;
   }
-  if (m_cursorPos.x >= GetLineAt(m_cursorPos.y).size()) {
+  if (m_cursorPos.x > GetLineAt(m_cursorPos.y).size()) {
     return MEMORY_ERROR;
   }
   return VIMKTOR_OK;
