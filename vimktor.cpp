@@ -18,7 +18,7 @@ void Vimktor::Init() {
 
   LoadFile("test.cs");
   m_logFile.open("log_file.txt", std::ios::out | std::ios::in);
-
+  // m_sequence.CursorMovePos(position_t(4,4));
 #endif
 }
 

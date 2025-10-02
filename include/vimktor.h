@@ -1,6 +1,5 @@
 #include "common.h"
 #include "curses.h"
-#include "cursor.h"
 #include "sequence.h"
 #include <cstdint>
 #include <expected>

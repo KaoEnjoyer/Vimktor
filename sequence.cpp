@@ -97,23 +97,57 @@ VimktorErr_t Sequence::CursorMove(CursorDirection dir) {
   return VIMKTOR_OK;
 }
 
+VimktorErr_t Sequence::CursorMovePos(const position_t &pos) {
+
+  position_t backUp = m_cursorPos;
+  m_cursorPos.x = pos.x;
+  m_cursorPosPrev.y = pos.y;
+  ManageLastPos(backUp);
+  return VIMKTOR_OK;
+}
+
+VimktorErr_t Sequence::CursorMovePos(const position_t &&pos) {
+
+  position_t backUp = m_cursorPos;
+  m_cursorPos.x = pos.x;
+  m_cursorPosPrev.y = pos.y;
+  ManageLastPos(backUp);
+  return VIMKTOR_OK;
+}
 void Sequence::ManageLastPos(position_t &backUp) {
 
   // make sure line exist
+  //
+  //
+  if (m_cursorPos.x < 0) {
+    m_cursorPos.x = 0;
+  }
+
   if (m_cursorPos.y >= Size()) {
-    m_cursorPos = backUp;
-    return;
+    m_cursorPos.y = Size() - 1;
+    if(m_cursorPos.y < 0)m_cursorPos.y = 0;
+  }
+  if (m_cursorPos.y == backUp.y) {
+    // if on same line check if cursors does not go afer line
+
+    if (m_cursorPos.x >= LineSize(m_cursorPos.y)) {
+      m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
+      return;
+    }
   }
 
   // check if cursors doens not go off the line
   if (m_cursorPos.x >= LineSize(m_cursorPos.y)) {
-      if (m_cursorPos.x < 0)
-        m_cursorPos.x = 0;
+    if (m_cursorPos.x < 0)
+      m_cursorPos.x = 0;
     if (m_cursorPos.x == 0)
       return; // its okay to set cursors to 0 on empyt line
     if (m_cursorPos.x >= m_cursorPosPrev.x)
       m_cursorPosPrev.x = m_cursorPos.x;
+
     m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
+    if (m_cursorPos.x < 0)
+      m_cursorPos.x = 0;
   } else {
     if (backUp.x != m_cursorPos.x) // cursors moved in x axis
     {
@@ -122,14 +156,16 @@ void Sequence::ManageLastPos(position_t &backUp) {
       m_cursorPosPrev = m_cursorPos;
       return;
     }
+    // if last position can fit in line
     if (m_cursorPosPrev.x < LineSize(m_cursorPos.y)) {
       m_cursorPos.x = m_cursorPosPrev.x;
     } else {
-
       m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
       if (m_cursorPos.x < 0)
         m_cursorPos.x = 0;
     }
+    VimktorDebugLog(std::format("prevpos x: {}  y: {}", m_cursorPosPrev.x,
+                                m_cursorPosPrev.y));
   }
   return;
 

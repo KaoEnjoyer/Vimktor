@@ -68,6 +68,8 @@ public:
   // cursor
 
   VimktorErr_t CursorMove(CursorDirection dir);
+  VimktorErr_t CursorMovePos(const position_t &pos);
+  VimktorErr_t CursorMovePos(const position_t &&pos);
   VimktorErr_t CursorChangeLine(CursorDirection dir);
   void ManageLastPos(position_t &backUp);
   inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
@@ -76,7 +78,8 @@ public:
     return (m_cursorPos - m_pagePos);
   }
   position_t m_cursorPos;
-  position_t m_cursorPosPrev;//this determines how much cursors should be offested after changin line 
+  position_t m_cursorPosPrev; // this determines how much cursors should be
+                              // offested after changin line
   position_t m_pagePos;
 
 private:
