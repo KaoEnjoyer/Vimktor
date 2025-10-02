@@ -1,8 +1,11 @@
 #include "include/sequence.h"
 #include "include/common.h"
+#include "include/vimktor_debug.h"
+#include "vimktor_debug.cpp"
 #include <assert.h>
 #include <cstdio>
 #include <expected>
+#include <format>
 #include <fstream>
 #include <iostream>
 Sequence::Sequence(std::fstream &file) { LoadFile(file); }
@@ -72,37 +75,97 @@ void Sequence::AddLine(const std::string &str) {
   }
 }
 
-VimktorErr_t Sequence::CursorMove(CursorDirection dir) noexcept {
+VimktorErr_t Sequence::CursorMove(CursorDirection dir) {
 
   position_t backUp = m_cursorPos;
+  VimktorDebugLog(
+      std::format("cursor x:{}, cursor y:{}", m_cursorPos.x, m_cursorPos.y));
+
   if (dir == UP) {
-    CursorChangeLine(UP);
+    m_cursorPos.y--;
+    // CursorChangeLine(UP);
   } else if (dir == DOWN) {
-    CursorChangeLine(DOWN);
+    m_cursorPos.y++;
+    // CursorChangeLine(DOWN);
   } else if (dir == LEFT) {
     m_cursorPos.x--;
   } else if (dir == RIGHT) {
     m_cursorPos.x++;
   }
-  if (CursorPosValid() != VIMKTOR_OK) {
-    m_cursorPos = backUp;
-  } else {
-    if (dir == LEFT || dir == RIGHT) {
-      m_cursorPosPrev = backUp;
-    }
-  }
+
+  ManageLastPos(backUp);
   return VIMKTOR_OK;
 }
 
-VimktorErr_t Sequence::CursorChangeLine(CursorDirection dir) noexcept {
+void Sequence::ManageLastPos(position_t &backUp) {
+
+  // make sure line exist
+  if (m_cursorPos.y >= Size()) {
+    m_cursorPos = backUp;
+    return;
+  }
+
+  // check if cursors doens not go off the line
+  if (m_cursorPos.x >= LineSize(m_cursorPos.y)) {
+      if (m_cursorPos.x < 0)
+        m_cursorPos.x = 0;
+    if (m_cursorPos.x == 0)
+      return; // its okay to set cursors to 0 on empyt line
+    if (m_cursorPos.x >= m_cursorPosPrev.x)
+      m_cursorPosPrev.x = m_cursorPos.x;
+    m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
+  } else {
+    if (backUp.x != m_cursorPos.x) // cursors moved in x axis
+    {
+      if (m_cursorPos.x < 0)
+        m_cursorPos.x = 0;
+      m_cursorPosPrev = m_cursorPos;
+      return;
+    }
+    if (m_cursorPosPrev.x < LineSize(m_cursorPos.y)) {
+      m_cursorPos.x = m_cursorPosPrev.x;
+    } else {
+
+      m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
+      if (m_cursorPos.x < 0)
+        m_cursorPos.x = 0;
+    }
+  }
+  return;
+
+  if (backUp.y) {
+
+    {
+    }
+    // if (CursorPosValid() != VIMKTOR_OK) {
+    //   m_cursorPos = backUp;
+    // } else {
+    //   if (m_cursorPos.x != backUp.x) {
+    //     // jeżeli kursor zminił się w osi x
+    //     m_cursorPosPrev = m_cursorPos;
+    //   }
+    // }
+  }
+}
+
+VimktorErr_t Sequence::CursorChangeLine(CursorDirection dir) {
   if (dir != UP && dir != DOWN)
     return VimktorErr_t::INVALID_ARRGUMENT;
   if (dir == UP)
     m_cursorPos.y--;
   if (dir == DOWN)
     m_cursorPos.y++;
-  if (LineSize(m_cursorPosPrev.y) > LineSize(m_cursorPos.y)) {
-    m_cursorPos.x = LineSize(m_cursorPos.y);
+
+  if (CursorPosValid() != VIMKTOR_OK)
+    return VimktorErr_t::EOL_ERROR;
+
+  VimktorDebugLog(std::format("prevpos x: {}  y: {}", m_cursorPosPrev.x,
+                              m_cursorPosPrev.y));
+  if (m_cursorPosPrev.x >= LineSize(m_cursorPos.y)) {
+    if (LineSize(m_cursorPos.y) == 0)
+      m_cursorPos.x = 0;
+    m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
+
   } else {
     m_cursorPos.x = m_cursorPosPrev.x;
   }
@@ -134,12 +197,14 @@ VimktorErr_t Sequence::LoadFile(std::fstream &file) {
 }
 
 VimktorErr_t Sequence::CursorPosValid() {
-  if (m_cursorPos.x < 0 && m_cursorPos.y < 0)
+  if (m_cursorPos.x < 0 || m_cursorPos.y < 0)
     return MEMORY_ERROR;
-  if (m_cursorPos.y >= Size()) {
+  if (m_cursorPos.y > Size()) {
     return MEMORY_ERROR;
   }
-  if (m_cursorPos.x > GetLineAt(m_cursorPos.y).size()) {
+  if (m_cursorPos.x == 0)
+    return VIMKTOR_OK;
+  if (m_cursorPos.x >= LineSize(m_cursorPos.y)) {
     return MEMORY_ERROR;
   }
   return VIMKTOR_OK;

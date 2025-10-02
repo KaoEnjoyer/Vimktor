@@ -1,7 +1,7 @@
-
 #include "include/vimktor.h"
 #include "include/common.h"
 #include "include/sequence.h"
+#include "include/vimktor_debug.h"
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
@@ -119,7 +119,7 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent event) {
     err = m_sequence.CursorMove(LEFT);
     break;
   case EVENT_CLOSE:
-    throw("");
+    m_mode = EXIT;
     break;
   }
   return VIMKTOR_OK;
@@ -136,15 +136,8 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
 };
 
 void Vimktor::Loop() {
-  while (1) {
-    RenderWindow();
+  while (m_mode != EXIT) {
     GetInput();
+    RenderWindow();
   }
 }
-// gc
-// ctrl + W + d
-#ifdef DEBUG_MODE
-void Vimktor::DebugLog(const std::string &msg) {
-  m_logFile << msg << " at: " << __FILE__ << " " << __LINE__ << std::endl;
-}
-#endif

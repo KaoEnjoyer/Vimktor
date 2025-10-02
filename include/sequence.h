@@ -16,8 +16,8 @@ size_t const DEFAULT_SEQUENCE_LINE_NUM = (1 << 9);
 // how much lines does sequence reserve on init
 
 typedef struct glyphStruct {
-  uint32_t ch;
-  uint32_t color;
+  int32_t ch;
+  int32_t color;
 
   operator char() { return (char)ch; }
   inline glyphStruct(uint32_t ch) : ch(ch) {};
@@ -67,16 +67,16 @@ public:
 
   // cursor
 
-  VimktorErr_t CursorMove(CursorDirection dir) noexcept;
-  VimktorErr_t CursorChangeLine(CursorDirection dir) noexcept;
-
+  VimktorErr_t CursorMove(CursorDirection dir);
+  VimktorErr_t CursorChangeLine(CursorDirection dir);
+  void ManageLastPos(position_t &backUp);
   inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
   inline const position_t &GetRelativeCursorPos() noexcept {
 
     return (m_cursorPos - m_pagePos);
   }
   position_t m_cursorPos;
-  position_t m_cursorPosPrev;
+  position_t m_cursorPosPrev;//this determines how much cursors should be offested after changin line 
   position_t m_pagePos;
 
 private:

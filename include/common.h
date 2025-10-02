@@ -13,7 +13,7 @@ enum VimktorErr_t {
   EOL_ERROR
 };
 
-enum VimktorMode_t { INSERT, VISUAL, NORMAL };
+enum VimktorMode_t { INSERT, VISUAL, NORMAL, EXIT };
 
 enum CursorDirection {
   LEFT,
@@ -24,8 +24,8 @@ enum CursorDirection {
 };
 
 typedef struct positionStruct {
-  uint32_t x;
-  uint32_t y;
+  int32_t x;
+  int32_t y;
   positionStruct() : x(0), y(0) {}
   positionStruct(uint32_t x, uint32_t y) : x(x), y(y) {}
 

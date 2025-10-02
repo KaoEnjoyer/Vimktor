@@ -6,7 +6,6 @@
 #include <expected>
 #include <fstream>
 #include <memory>
-
 class Vimktor {
   // methods
 public:
@@ -37,7 +36,6 @@ public:
   // cursor
 
 #ifdef DEBUG_MODE
-  void DebugLog(const std::string &msg);
   std::fstream m_logFile;
 #endif
 };
