@@ -65,12 +65,16 @@ public:
   void AddLine(const std::string &str);
   void SetLineTo(size_t line, const std::string &str);
 
+  void AddCharTo(const position_t &pos);
+
+  void AddCharCursor(const position_t &pos);
   // cursor
 
   VimktorErr_t CursorMove(CursorDirection dir);
   VimktorErr_t CursorMovePos(const position_t &pos);
   VimktorErr_t CursorMovePos(const position_t &&pos);
   VimktorErr_t CursorChangeLine(CursorDirection dir);
+
   void ManageLastPos(position_t &backUp);
   inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
   inline const position_t &GetRelativeCursorPos() noexcept {
@@ -84,6 +88,5 @@ public:
 
 private:
   VimktorErr_t CursorPosValid();
-
   std::vector<std::vector<glyph_t>> data;
 };

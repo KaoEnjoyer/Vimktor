@@ -26,15 +26,13 @@ public:
                           uint16_t height);
 
   VimktorErr_t GetInput();
-  VimktorErr_t HandleEvents(VimktorEvent event);
+  VimktorErr_t HandleEvents(VimktorEvent_t event);
   // variables
   WINDOW *m_window;
   Sequence m_sequence;
   VimktorMode_t m_mode;
 
-  // cursor
-
-#ifdef DEBUG_MODE
-  std::fstream m_logFile;
-#endif
+private:
+  // IsEscapePressed check is esc key is press and returns Event that suits
+  // input
 };

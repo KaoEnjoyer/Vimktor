@@ -54,12 +54,17 @@ typedef struct positionStruct {
 
 } position_t;
 
-enum VimktorEvent {
-  CURSOR_UP,
-  CURSOR_DOWN,
-  CURSOR_LEFT,
-  CURSOR_RIGHT,
-  ADD_LETTER,
-  EVENT_NONE,
-  EVENT_CLOSE
+enum VimktorEvent_t {
+  EV_CURSOR_UP,
+  EV_CURSOR_DOWN,
+  EV_CURSOR_LEFT,
+  EV_CURSOR_RIGHT,
+  EV_ADD_LETTER,
+  EV_NONE,
+  EV_CLOSE,
+  EV_GO_TO_EOL,
+  EV_GO_TO_SOL,
+  EV_GO_TO_POS,
+  EV_MODE_INSERT,
+  EV_MODE_NORMAL,
 };

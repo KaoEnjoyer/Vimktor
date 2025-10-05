@@ -100,8 +100,9 @@ VimktorErr_t Sequence::CursorMove(CursorDirection dir) {
 VimktorErr_t Sequence::CursorMovePos(const position_t &pos) {
 
   position_t backUp = m_cursorPos;
+  VimktorDebugLog(std::format("test {}", pos.x));
   m_cursorPos.x = pos.x;
-  m_cursorPosPrev.y = pos.y;
+  m_cursorPos.y = pos.y;
   ManageLastPos(backUp);
   return VIMKTOR_OK;
 }
@@ -110,78 +111,51 @@ VimktorErr_t Sequence::CursorMovePos(const position_t &&pos) {
 
   position_t backUp = m_cursorPos;
   m_cursorPos.x = pos.x;
-  m_cursorPosPrev.y = pos.y;
+  m_cursorPos.y = pos.y;
+  VimktorDebugLog(std::format("test {}", pos.x));
   ManageLastPos(backUp);
   return VIMKTOR_OK;
 }
 void Sequence::ManageLastPos(position_t &backUp) {
 
+  // this method fixes cursor positon after moving event
+  //
   // make sure line exist
   //
   //
+
+  VimktorDebugLog(std::format("prevpos x: {}  y: {}", m_cursorPosPrev.x,
+                              m_cursorPosPrev.y));
   if (m_cursorPos.x < 0) {
     m_cursorPos.x = 0;
+    backUp.x = m_cursorPos.x;
   }
 
-  if (m_cursorPos.y >= Size()) {
+  if (m_cursorPos.y < 0) {
+    m_cursorPos.y = 0;
+    backUp.y = m_cursorPos.y;
+  }
+  if (m_cursorPos.y >= Size() && m_cursorPos.y != 0) {
     m_cursorPos.y = Size() - 1;
-    if(m_cursorPos.y < 0)m_cursorPos.y = 0;
   }
-  if (m_cursorPos.y == backUp.y) {
-    // if on same line check if cursors does not go afer line
 
-    if (m_cursorPos.x >= LineSize(m_cursorPos.y)) {
+  if (m_cursorPos.x != backUp.x ) {
+    // jezeli jestesmy w tej samej lini
+
+    if (m_cursorPos.x >= LineSize(m_cursorPos.y) && m_cursorPos.x != 0) {
       m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
-      return;
     }
+    m_cursorPosPrev.x = m_cursorPos.x;
+  } else {
+    m_cursorPos.x = m_cursorPosPrev.x;
   }
-
-  // check if cursors doens not go off the line
-  if (m_cursorPos.x >= LineSize(m_cursorPos.y)) {
-    if (m_cursorPos.x < 0)
-      m_cursorPos.x = 0;
-    if (m_cursorPos.x == 0)
-      return; // its okay to set cursors to 0 on empyt line
-    if (m_cursorPos.x >= m_cursorPosPrev.x)
-      m_cursorPosPrev.x = m_cursorPos.x;
-
+  if (m_cursorPos.x >= LineSize(m_cursorPos.y) && m_cursorPos.x != 0) {
     m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
     if (m_cursorPos.x < 0)
       m_cursorPos.x = 0;
-  } else {
-    if (backUp.x != m_cursorPos.x) // cursors moved in x axis
-    {
-      if (m_cursorPos.x < 0)
-        m_cursorPos.x = 0;
-      m_cursorPosPrev = m_cursorPos;
-      return;
-    }
-    // if last position can fit in line
-    if (m_cursorPosPrev.x < LineSize(m_cursorPos.y)) {
-      m_cursorPos.x = m_cursorPosPrev.x;
-    } else {
-      m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
-      if (m_cursorPos.x < 0)
-        m_cursorPos.x = 0;
-    }
-    VimktorDebugLog(std::format("prevpos x: {}  y: {}", m_cursorPosPrev.x,
-                                m_cursorPosPrev.y));
   }
+
   return;
-
-  if (backUp.y) {
-
-    {
-    }
-    // if (CursorPosValid() != VIMKTOR_OK) {
-    //   m_cursorPos = backUp;
-    // } else {
-    //   if (m_cursorPos.x != backUp.x) {
-    //     // jeżeli kursor zminił się w osi x
-    //     m_cursorPosPrev = m_cursorPos;
-    //   }
-    // }
-  }
 }
 
 VimktorErr_t Sequence::CursorChangeLine(CursorDirection dir) {

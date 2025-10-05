@@ -14,21 +14,10 @@ void Vimktor::Init() {
 
   InitCurses();
   m_window = stdscr;
-#ifdef DEBUG_MODE
-
   LoadFile("test.cs");
-  m_logFile.open("log_file.txt", std::ios::out | std::ios::in);
-  // m_sequence.CursorMovePos(position_t(4,4));
-#endif
 }
 
-void Vimktor::End() {
-#ifdef DEBUG_MODE
-  m_logFile.close();
-#endif
-
-  endwin();
-}
+void Vimktor::End() { endwin(); }
 
 VimktorErr_t Vimktor::InitCurses() {
   initscr();
@@ -81,44 +70,35 @@ VimktorErr_t Vimktor::RenderText(uint16_t x, uint16_t y, uint16_t width,
   return VIMKTOR_OK;
 }
 VimktorErr_t Vimktor::GetInput() {
-  char pressed = wgetch(m_window);
-  VimktorEvent event = EVENT_NONE;
-  switch (pressed) {
-  case 'q':
-    event = EVENT_CLOSE;
+  switch (m_mode) {
+  case NORMAL:
+    GetInputNormal();
     break;
-  case 'h':
-    event = CURSOR_LEFT;
-    break;
-  case 'j':
-    event = CURSOR_DOWN;
-    break;
-  case 'k':
-    event = CURSOR_UP;
-    break;
-  case 'l':
-    event = CURSOR_RIGHT;
+  case INSERT:
+    GetInputNormal();
     break;
   }
-  return HandleEvents(event);
 }
 
-VimktorErr_t Vimktor::HandleEvents(VimktorEvent event) {
+
+VimktorEvent_t Vimktor::IsEscapePressed() { return EV_CLOSE; }
+
+VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   VimktorErr_t err = VIMKTOR_OK;
   switch (event) {
-  case CURSOR_DOWN:
+  case EV_CURSOR_DOWN:
     err = m_sequence.CursorMove(DOWN);
     break;
-  case CURSOR_UP:
+  case EV_CURSOR_UP:
     err = m_sequence.CursorMove(UP);
     break;
-  case CURSOR_RIGHT:
+  case EV_CURSOR_RIGHT:
     err = m_sequence.CursorMove(RIGHT);
     break;
-  case CURSOR_LEFT:
+  case EV_CURSOR_LEFT:
     err = m_sequence.CursorMove(LEFT);
     break;
-  case EVENT_CLOSE:
+  case EV_CLOSE:
     m_mode = EXIT;
     break;
   }
