@@ -1,9 +1,10 @@
-
+#pragma once
 // singleton ?
 #include "common.h"
 #include <ncurses.h>
 
 #define KEY_ESCAPE 27 // in ncurses ESC and R_ALT have same int value
+#define KEY_BACKSPACE 32
 
 class InputManager {
 public:
@@ -12,7 +13,7 @@ public:
     return _instance;
   };
   void GetCmdBuffer() = delete;
-  inline uint32_t GetChar() const noexcept {return inputCh;}
+  inline uint32_t GetChar() const noexcept { return inputCh; }
   VimktorEvent_t GetEvent(WINDOW *win, VimktorMode_t mode);
   InputManager(const InputManager &) = delete;
   InputManager &operator=(const InputManager &) = delete;
@@ -23,5 +24,5 @@ private:
   VimktorEvent_t IsEscapePressed();
   VimktorEvent_t GetInputInsert();
   VimktorEvent_t GetInputNormal();
-  InputManager();
+  InputManager() { inputCh = 0; }
 };

@@ -61,20 +61,26 @@ public:
 
   std::string GetStringAt(size_t line);
 
-  inline const size_t LineSize(size_t line) { return data.at(line).size(); }
+  inline const size_t LineSize(size_t line) {
+    if (m_mode == INSERT)
+      return data.at(line).size() + 1;
+    return data.at(line).size();
+  }
   void AddLine(const std::string &str);
   void SetLineTo(size_t line, const std::string &str);
 
   void AddCharTo(const position_t &pos);
-
-  void InsertCharCursor(const glyph_t& gl); // insserts char in cursros position
-  void ReplaceCharCursor(const glyph_t& gl); // replaces char in cursros position
-  // cursor
+  void InsertCharCursor(const glyph_t &gl); // insserts char in cursros position
+  void ReplaceCharCursor(const glyph_t &gl); // replaces char in cursros
+                                             // position cursor
+  void EraseCharCursor();
+  void EraseLineCursor();
 
   VimktorErr_t CursorMove(CursorDirection dir);
   VimktorErr_t CursorMovePos(const position_t &pos);
   VimktorErr_t CursorMovePos(const position_t &&pos);
   VimktorErr_t CursorChangeLine(CursorDirection dir);
+  VimktorErr_t CursorMoveEol();
 
   void ManageLastPos(position_t &backUp);
   inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
@@ -86,6 +92,7 @@ public:
   position_t m_cursorPosPrev; // this determines how much cursors should be
                               // offested after changin line
   position_t m_pagePos;
+  VimktorMode_t m_mode;
 
 private:
   VimktorErr_t CursorPosValid();

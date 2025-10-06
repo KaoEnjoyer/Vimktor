@@ -1,5 +1,6 @@
 #include "include/vimktor.h"
 #include "include/common.h"
+#include "include/input_manager.h"
 #include "include/sequence.h"
 #include "include/vimktor_debug.h"
 #include <cassert>
@@ -9,9 +10,7 @@
 #include <cwchar>
 #include <fstream>
 #include <memory>
-
 void Vimktor::Init() {
-
   InitCurses();
   m_window = stdscr;
   LoadFile("test.cs");
@@ -21,12 +20,13 @@ void Vimktor::End() { endwin(); }
 
 VimktorErr_t Vimktor::InitCurses() {
   initscr();
-  keypad(stdscr, true);
+  keypad(m_window, TRUE);
   raw();
   nodelay(stdscr, true);
   noecho();
   curs_set(1);
   init_color(COLOR, 0, 0, 0);
+  printf("\033[6 q");
   return VIMKTOR_OK;
 }
 
@@ -78,6 +78,10 @@ VimktorErr_t Vimktor::GetInput() {
 VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   VimktorErr_t err = VIMKTOR_OK;
   switch (event) {
+
+  case EV_NONE:
+
+    break;
   case EV_CURSOR_DOWN:
     err = m_sequence.CursorMove(DOWN);
     break;
@@ -99,10 +103,17 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   case EV_MODE_INSERT:
     m_mode = INSERT;
     break;
+  case EV_BACKSPACE:
+    m_sequence.EraseCharCursor();
+    break;
   case EV_INSERT_TEXT: {
-    glyph_t gl = glyph_t(c) ;
-			m_sequence.InsertCharCursor();
+    glyph_t gl = glyph_t(InputManager::Get().GetChar());
+    m_sequence.InsertCharCursor(gl);
+
   } break;
+  case EV_GO_TO_EOL:
+    m_sequence.CursorMoveEol();
+    break;
   }
   return VIMKTOR_OK;
 }
@@ -121,5 +132,6 @@ void Vimktor::Loop() {
   while (m_mode != EXIT) {
     GetInput();
     RenderWindow();
+    m_sequence.m_mode = m_mode;
   }
 }

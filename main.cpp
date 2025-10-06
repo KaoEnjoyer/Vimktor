@@ -1,10 +1,10 @@
 #include "include/vimktor.h"
+#include "include/vimktor_debug.h"
 #include <expected>
 #include <iostream>
 
 int main() {
   Vimktor app = Vimktor();
-
   app.Init();
   app.Loop();
   app.End();

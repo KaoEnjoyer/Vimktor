@@ -68,4 +68,5 @@ enum VimktorEvent_t {
   EV_MODE_INSERT,
   EV_MODE_NORMAL,
   EV_INSERT_TEXT,
+  EV_BACKSPACE,
 };

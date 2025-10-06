@@ -78,8 +78,6 @@ void Sequence::AddLine(const std::string &str) {
 VimktorErr_t Sequence::CursorMove(CursorDirection dir) {
 
   position_t backUp = m_cursorPos;
-  VimktorDebugLog(
-      std::format("cursor x:{}, cursor y:{}", m_cursorPos.x, m_cursorPos.y));
 
   if (dir == UP) {
     m_cursorPos.y--;
@@ -100,7 +98,6 @@ VimktorErr_t Sequence::CursorMove(CursorDirection dir) {
 VimktorErr_t Sequence::CursorMovePos(const position_t &pos) {
 
   position_t backUp = m_cursorPos;
-  VimktorDebugLog(std::format("test {}", pos.x));
   m_cursorPos.x = pos.x;
   m_cursorPos.y = pos.y;
   ManageLastPos(backUp);
@@ -112,7 +109,6 @@ VimktorErr_t Sequence::CursorMovePos(const position_t &&pos) {
   position_t backUp = m_cursorPos;
   m_cursorPos.x = pos.x;
   m_cursorPos.y = pos.y;
-  VimktorDebugLog(std::format("test {}", pos.x));
   ManageLastPos(backUp);
   return VIMKTOR_OK;
 }
@@ -124,8 +120,6 @@ void Sequence::ManageLastPos(position_t &backUp) {
   //
   //
 
-  VimktorDebugLog(std::format("prevpos x: {}  y: {}", m_cursorPosPrev.x,
-                              m_cursorPosPrev.y));
   if (m_cursorPos.x < 0) {
     m_cursorPos.x = 0;
     backUp.x = m_cursorPos.x;
@@ -139,7 +133,7 @@ void Sequence::ManageLastPos(position_t &backUp) {
     m_cursorPos.y = Size() - 1;
   }
 
-  if (m_cursorPos.x != backUp.x ) {
+  if (m_cursorPos.x != backUp.x) {
     // jezeli jestesmy w tej samej lini
 
     if (m_cursorPos.x >= LineSize(m_cursorPos.y) && m_cursorPos.x != 0) {
@@ -169,8 +163,6 @@ VimktorErr_t Sequence::CursorChangeLine(CursorDirection dir) {
   if (CursorPosValid() != VIMKTOR_OK)
     return VimktorErr_t::EOL_ERROR;
 
-  VimktorDebugLog(std::format("prevpos x: {}  y: {}", m_cursorPosPrev.x,
-                              m_cursorPosPrev.y));
   if (m_cursorPosPrev.x >= LineSize(m_cursorPos.y)) {
     if (LineSize(m_cursorPos.y) == 0)
       m_cursorPos.x = 0;
@@ -217,5 +209,36 @@ VimktorErr_t Sequence::CursorPosValid() {
   if (m_cursorPos.x >= LineSize(m_cursorPos.y)) {
     return MEMORY_ERROR;
   }
+  return VIMKTOR_OK;
+}
+
+void Sequence::InsertCharCursor(const glyph_t &gl) {
+  const auto itr = data[m_cursorPos.y].begin() + m_cursorPos.x;
+  data[m_cursorPos.y].insert(itr, gl);
+  CursorMove(RIGHT);
+}
+
+void Sequence::EraseCharCursor() {
+  const auto itr = data[m_cursorPos.y].begin() + m_cursorPos.x;
+
+  if (m_cursorPos.x == 0) {
+    EraseLineCursor();
+    CursorMove(UP);
+    CursorMoveEol();
+    return;
+  }
+  data[m_cursorPos.y].erase(itr);
+  CursorMove(LEFT);
+}
+
+void Sequence::EraseLineCursor() {
+  const auto itr = data.begin() + m_cursorPos.y;
+  data.erase(itr);
+};
+
+VimktorErr_t Sequence::CursorMoveEol() {
+  auto backUp = m_cursorPos;
+  m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
+  ManageLastPos(backUp);
   return VIMKTOR_OK;
 }
