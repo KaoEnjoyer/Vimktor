@@ -2,13 +2,17 @@
 // singleton ?
 #include "common.h"
 #include <ncurses.h>
+
+#define KEY_ESCAPE 27 // in ncurses ESC and R_ALT have same int value
+
 class InputManager {
 public:
-  InputManager &Get() {
+  static InputManager &Get() {
     static InputManager _instance;
     return _instance;
   };
   void GetCmdBuffer() = delete;
+  inline uint32_t GetChar() const noexcept {return inputCh;}
   VimktorEvent_t GetEvent(WINDOW *win, VimktorMode_t mode);
   InputManager(const InputManager &) = delete;
   InputManager &operator=(const InputManager &) = delete;

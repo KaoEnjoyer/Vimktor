@@ -67,4 +67,5 @@ enum VimktorEvent_t {
   EV_GO_TO_POS,
   EV_MODE_INSERT,
   EV_MODE_NORMAL,
+  EV_INSERT_TEXT,
 };

@@ -67,7 +67,8 @@ public:
 
   void AddCharTo(const position_t &pos);
 
-  void AddCharCursor(const position_t &pos);
+  void InsertCharCursor(const glyph_t& gl); // insserts char in cursros position
+  void ReplaceCharCursor(const glyph_t& gl); // replaces char in cursros position
   // cursor
 
   VimktorErr_t CursorMove(CursorDirection dir);

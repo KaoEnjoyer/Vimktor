@@ -1,12 +1,13 @@
 
 #include "include/input_manager.h"
 #include "include/common.h"
+#include <ncurses.h>
 
 VimktorEvent_t InputManager::GetEvent(WINDOW *win, VimktorMode_t mode) {
 
   inputCh = wgetch(win);
 
-  switch (mode) {
+ switch (mode) {
   case VimktorMode_t::NORMAL:
     return GetInputNormal();
     break;
@@ -22,14 +23,47 @@ VimktorEvent_t InputManager::GetEvent(WINDOW *win, VimktorMode_t mode) {
 VimktorEvent_t InputManager::GetInputInsert() {
 
   VimktorEvent_t event = EV_NONE;
-  switch (inputCh) { default: }
-  return HandleEvents(event);
-};
-VimktorErr_t Vimktor::GetInputNormal() {
+  event = IsEscapePressed();
+  if (event != EV_NONE)
+    return event;
 
-  char pressed = wgetch(m_window);
+  switch (inputCh) {
+  case KEY_UP:
+    return EV_CURSOR_UP;
+    break;
+  case KEY_DOWN:
+    return EV_CURSOR_DOWN;
+    break;
+  case KEY_LEFT:
+    return EV_CURSOR_LEFT;
+    break;
+  case KEY_RIGHT:
+    return EV_CURSOR_RIGHT;
+    break;
+
+  default:
+    return EV_INSERT_TEXT;
+    break;
+  }
+};
+
+VimktorEvent_t InputManager::GetInputNormal() {
+
   VimktorEvent_t event = EV_NONE;
-  switch (pressed) {
+  switch (inputCh) {
+  case KEY_UP:
+    return EV_CURSOR_UP;
+    break;
+  case KEY_DOWN:
+    return EV_CURSOR_DOWN;
+    break;
+  case KEY_LEFT:
+    return EV_CURSOR_LEFT;
+    break;
+  case KEY_RIGHT:
+    return EV_CURSOR_RIGHT;
+    break;
+
   case 'q':
     event = EV_CLOSE;
     break;
@@ -51,6 +85,18 @@ VimktorErr_t Vimktor::GetInputNormal() {
   case 'i':
     event = EV_MODE_INSERT;
     break;
+  default:
+    event = EV_NONE;
+    break;
   }
-  return HandleEvents(event);
+  return event;
 };
+
+VimktorEvent_t InputManager::IsEscapePressed() {
+  if (inputCh == KEY_ESCAPE) {
+    char n = getch();
+    if (n == 0)
+      return EV_MODE_NORMAL;
+  }
+  return EV_NONE;
+}

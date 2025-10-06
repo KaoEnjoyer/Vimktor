@@ -70,18 +70,10 @@ VimktorErr_t Vimktor::RenderText(uint16_t x, uint16_t y, uint16_t width,
   return VIMKTOR_OK;
 }
 VimktorErr_t Vimktor::GetInput() {
-  switch (m_mode) {
-  case NORMAL:
-    GetInputNormal();
-    break;
-  case INSERT:
-    GetInputNormal();
-    break;
-  }
+  VimktorEvent_t event = InputManager::Get().GetEvent(m_window, m_mode);
+  HandleEvents(event);
+  return VIMKTOR_OK;
 }
-
-
-VimktorEvent_t Vimktor::IsEscapePressed() { return EV_CLOSE; }
 
 VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   VimktorErr_t err = VIMKTOR_OK;
@@ -101,6 +93,16 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   case EV_CLOSE:
     m_mode = EXIT;
     break;
+  case EV_MODE_NORMAL:
+    m_mode = NORMAL;
+    break;
+  case EV_MODE_INSERT:
+    m_mode = INSERT;
+    break;
+  case EV_INSERT_TEXT: {
+    glyph_t gl = glyph_t(c) ;
+			m_sequence.InsertCharCursor();
+  } break;
   }
   return VIMKTOR_OK;
 }

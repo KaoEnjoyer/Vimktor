@@ -1,5 +1,6 @@
 #include "common.h"
 #include "curses.h"
+#include "input_manager.h"
 #include "sequence.h"
 #include <cstdint>
 #include <expected>
@@ -33,6 +34,4 @@ public:
   VimktorMode_t m_mode;
 
 private:
-  // IsEscapePressed check is esc key is press and returns Event that suits
-  // input
 };
