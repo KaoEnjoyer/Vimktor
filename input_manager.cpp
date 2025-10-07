@@ -6,28 +6,29 @@
 #include <ncurses.h>
 
 VimktorEvent_t InputManager::GetEvent(WINDOW *win, VimktorMode_t mode) {
-
-  inputCh = wgetch(win);
+	inputCh = wgetch(win);
+  if (inputCh == -1)
+    return EV_NONE;
+ nodelay(win , false);
+  Debug::Log(std::format("okej {}", inputCh));
   if (inputCh == 0xffffffff)
     return EV_NONE;
   switch (mode) {
   case VimktorMode_t::NORMAL:
-    return GetInputNormal();
+    return GetInputNormal(win);
     break;
   case VimktorMode_t::INSERT:
-    return GetInputInsert();
+    return GetInputInsert(win);
     break;
   default:
     return VimktorEvent_t::EV_NONE;
     break;
   }
+
+ nodelay(win , true);
 }
 
-int is_backspace(int ch) {
-  // Check all possible backspace representations
-  return (ch == KEY_BACKSPACE || ch == '\b' || ch == 127 || ch == 8);
-}
-VimktorEvent_t InputManager::GetInputInsert() {
+VimktorEvent_t InputManager::GetInputInsert(WINDOW *win) {
 
   VimktorEvent_t event = EV_NONE;
   event = IsEscapePressed();
@@ -49,7 +50,7 @@ VimktorEvent_t InputManager::GetInputInsert() {
   case KEY_RIGHT:
     return EV_CURSOR_RIGHT;
     break;
-  case 127:
+  case KEY_BACKSPACE:
     return EV_BACKSPACE;
     break;
   case 0:
@@ -61,7 +62,7 @@ VimktorEvent_t InputManager::GetInputInsert() {
   }
 };
 
-VimktorEvent_t InputManager::GetInputNormal() {
+VimktorEvent_t InputManager::GetInputNormal(WINDOW *win) {
 
   VimktorEvent_t event = EV_NONE;
   switch (inputCh) {
@@ -101,7 +102,9 @@ VimktorEvent_t InputManager::GetInputNormal() {
   case 'i':
     event = EV_MODE_INSERT;
     break;
-
+  case 'd':
+    return HandleDeleteEvent(win);
+    break;
   case 'a':
     event = EV_MODE_INSERT_RIGHT;
     break;
@@ -120,4 +123,19 @@ VimktorEvent_t InputManager::IsEscapePressed() {
     return EV_MODE_NORMAL;
   }
   return EV_NONE;
+}
+
+VimktorEvent_t InputManager::HandleDeleteEvent(WINDOW *win) {
+	
+  uint16_t nextOp = wgetch(win);
+
+  switch (nextOp) {
+	case 'd':
+		return EV_ERASE_LINE;
+		break;
+  default:
+    if (IsEscapePressed() != EV_NONE)
+      return EV_NONE;
+  }
+	return EV_NONE;
 }

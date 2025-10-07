@@ -70,5 +70,5 @@ enum VimktorEvent_t {
   EV_MODE_NORMAL,
   EV_INSERT_TEXT,
   EV_BACKSPACE,
-
+  EV_ERASE_LINE,
 };

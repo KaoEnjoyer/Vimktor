@@ -18,10 +18,13 @@ public:
   InputManager &operator=(const InputManager &) = delete;
 
 private:
-  uint32_t inputCh;
+  int32_t inputCh;
 
   VimktorEvent_t IsEscapePressed();
-  VimktorEvent_t GetInputInsert();
-  VimktorEvent_t GetInputNormal();
+  VimktorEvent_t HandleDeleteEvent(WINDOW* win);
+
+
+	VimktorEvent_t GetInputInsert(WINDOW* win);
+  VimktorEvent_t GetInputNormal(WINDOW* win);
   InputManager() { inputCh = 0; }
 };

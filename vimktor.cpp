@@ -12,7 +12,6 @@
 #include <memory>
 void Vimktor::Init() {
   InitCurses();
-  m_window = stdscr;
   LoadFile("test.cs");
 }
 
@@ -20,13 +19,13 @@ void Vimktor::End() { endwin(); }
 
 VimktorErr_t Vimktor::InitCurses() {
   initscr();
+  m_window = stdscr;
   keypad(m_window, TRUE);
   raw();
-  nodelay(stdscr, true);
+   nodelay(stdscr, true);
   noecho();
   curs_set(1);
   init_color(COLOR, 0, 0, 0);
-  printf("\033[6 q");
   return VIMKTOR_OK;
 }
 
@@ -97,6 +96,9 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   case EV_CLOSE:
     m_mode = EXIT;
     break;
+	case EV_ERASE_LINE:
+		m_sequence.EraseLineCursor();
+		break;
   case EV_MODE_NORMAL:
     m_mode = NORMAL;
     break;
