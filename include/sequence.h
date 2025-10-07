@@ -56,6 +56,11 @@ public:
                 size_t line); // relative , you dont need to consider pageOffset
   void AddGlyphAt(size_t col, size_t line, glyph_t glyph);
 
+  inline void SetPageDimensions(size_t pageWidth, size_t pageHeight){
+		m_pageWidth = pageWidth;
+		m_pageHeight= pageHeight;
+	}
+
   std::vector<glyph_t> &GetLineAt(size_t line);
   std::vector<glyph_t> &operator[](size_t line);
 
@@ -81,6 +86,8 @@ public:
   VimktorErr_t CursorMovePos(const position_t &&pos);
   VimktorErr_t CursorChangeLine(CursorDirection dir);
   VimktorErr_t CursorMoveEol();
+  VimktorErr_t CursorMoveSol();
+  VimktorErr_t CursorManagePagePos();
 
   void ManageLastPos(position_t &backUp);
   inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
@@ -95,6 +102,8 @@ public:
   VimktorMode_t m_mode;
 
 private:
+  size_t m_pageWidth;
+  size_t m_pageHeight;
   VimktorErr_t CursorPosValid();
   std::vector<std::vector<glyph_t>> data;
 };

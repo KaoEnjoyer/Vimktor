@@ -148,7 +148,7 @@ void Sequence::ManageLastPos(position_t &backUp) {
     if (m_cursorPos.x < 0)
       m_cursorPos.x = 0;
   }
-
+  CursorManagePagePos();
   return;
 }
 
@@ -219,20 +219,22 @@ void Sequence::InsertCharCursor(const glyph_t &gl) {
 }
 
 void Sequence::EraseCharCursor() {
-  const auto itr = data[m_cursorPos.y].begin() + m_cursorPos.x;
-
   if (m_cursorPos.x == 0) {
     EraseLineCursor();
     CursorMove(UP);
     CursorMoveEol();
     return;
   }
-  data[m_cursorPos.y].erase(itr);
+
   CursorMove(LEFT);
+  const auto itr = data[m_cursorPos.y].begin() + m_cursorPos.x;
+  data[m_cursorPos.y].erase(itr);
 }
 
 void Sequence::EraseLineCursor() {
-  const auto itr = data.begin() + m_cursorPos.y;
+  auto itr = data.begin() + m_cursorPos.y;
+  if (itr == data.end())
+    itr--;
   data.erase(itr);
 };
 
@@ -240,5 +242,23 @@ VimktorErr_t Sequence::CursorMoveEol() {
   auto backUp = m_cursorPos;
   m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
   ManageLastPos(backUp);
+
+  Debug::Log(std::format("x{} , line size {}", m_cursorPos.x,
+                         LineSize(m_cursorPos.y)));
+  return VIMKTOR_OK;
+}
+
+VimktorErr_t Sequence::CursorMoveSol() {
+  m_cursorPos.x = 0;
+
+  return VIMKTOR_OK;
+}
+
+VimktorErr_t Sequence::CursorManagePagePos() {
+  // we asume that the cursor pos is valid
+  if (m_pagePos.x + m_pageWidth < m_cursorPos.x) {
+    m_pagePos.x += (m_cursorPos.x - (m_pageWidth + m_pagePos.x));
+  }
+  // TODO:
   return VIMKTOR_OK;
 }

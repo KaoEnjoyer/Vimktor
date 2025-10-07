@@ -4,7 +4,6 @@
 #include <ncurses.h>
 
 #define KEY_ESCAPE 27 // in ncurses ESC and R_ALT have same int value
-#define KEY_BACKSPACE 32
 
 class InputManager {
 public:

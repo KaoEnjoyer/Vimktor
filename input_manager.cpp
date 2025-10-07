@@ -95,8 +95,15 @@ VimktorEvent_t InputManager::GetInputNormal() {
   case '$':
     event = EV_GO_TO_EOL;
     break;
+  case '0':
+    event = EV_GO_TO_SOL;
+    break;
   case 'i':
     event = EV_MODE_INSERT;
+    break;
+
+  case 'a':
+    event = EV_MODE_INSERT_RIGHT;
     break;
   default:
     event = EV_NONE;

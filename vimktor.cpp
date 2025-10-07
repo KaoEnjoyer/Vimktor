@@ -103,6 +103,11 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   case EV_MODE_INSERT:
     m_mode = INSERT;
     break;
+  case EV_MODE_INSERT_RIGHT:
+    m_mode = INSERT;
+    m_sequence.m_mode = m_mode;
+    m_sequence.CursorMove(RIGHT);
+    break;
   case EV_BACKSPACE:
     m_sequence.EraseCharCursor();
     break;
@@ -111,6 +116,9 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
     m_sequence.InsertCharCursor(gl);
 
   } break;
+  case EV_GO_TO_SOL:
+    m_sequence.CursorMoveSol();
+    break;
   case EV_GO_TO_EOL:
     m_sequence.CursorMoveEol();
     break;
