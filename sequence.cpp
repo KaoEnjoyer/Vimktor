@@ -81,10 +81,8 @@ VimktorErr_t Sequence::CursorMove(CursorDirection dir) {
 
   if (dir == UP) {
     m_cursorPos.y--;
-    // CursorChangeLine(UP);
   } else if (dir == DOWN) {
     m_cursorPos.y++;
-    // CursorChangeLine(DOWN);
   } else if (dir == LEFT) {
     m_cursorPos.x--;
   } else if (dir == RIGHT) {
@@ -119,7 +117,7 @@ void Sequence::ManageLastPos(position_t &backUp) {
   // make sure line exist
   //
   //
-
+  Debug::Log(std::format("CURSOR PRZED MANAGE: {}", (std::string)m_cursorPos));
   if (m_cursorPos.x < 0) {
     m_cursorPos.x = 0;
     backUp.x = m_cursorPos.x;
@@ -148,6 +146,7 @@ void Sequence::ManageLastPos(position_t &backUp) {
     if (m_cursorPos.x < 0)
       m_cursorPos.x = 0;
   }
+  Debug::Log(std::format("cursor x: {} , y: {}", m_cursorPos.x, m_cursorPos.y));
   CursorManagePagePos();
   return;
 }
@@ -239,33 +238,32 @@ void Sequence::EraseLineCursor() {
   if (itr == data.end())
     itr--;
   data.erase(itr);
-	ManageLastPos(m_cursorPos);
+  ManageLastPos(m_cursorPos);
 };
 
 VimktorErr_t Sequence::CursorMoveEol() {
   auto backUp = m_cursorPos;
   m_cursorPos.x = LineSize(m_cursorPos.y) - 1;
   ManageLastPos(backUp);
-	//TODO: fix page positioning
-  Debug::Log(std::format("x{} , line size {}", m_cursorPos.x,
-                         LineSize(m_cursorPos.y)));
+  // TODO: fix page positioning
   return VIMKTOR_OK;
 }
 
 VimktorErr_t Sequence::CursorMoveSol() {
   m_cursorPos.x = 0;
-
   return VIMKTOR_OK;
 }
 
 VimktorErr_t Sequence::CursorManagePagePos() {
   // we asume that the cursor pos is valid
-	int16_t x_offset = m_cursorPos.x - m_pageWidth;	
-  if(x_offset > 0){
-		m_pagePos.x = x_offset; 
-	}
-	// TODO:
-	//
-	Debug::Log(std::format("page x{}, page y{}", m_pagePos.x , m_pagePos.y));
+  int16_t x_offset = m_cursorPos.x - m_pageWidth + 1;
+  Debug::Log(std::format("{}", x_offset));
+  if (x_offset > 0) {
+    m_pagePos.x = x_offset;
+  }
+  // TODO:
+  //
+
+  Debug::Log(std::format("page x{}, page y{}", m_pagePos.x, m_pagePos.y));
   return VIMKTOR_OK;
 }

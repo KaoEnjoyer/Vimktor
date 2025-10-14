@@ -6,11 +6,10 @@
 #include <ncurses.h>
 
 VimktorEvent_t InputManager::GetEvent(WINDOW *win, VimktorMode_t mode) {
-	inputCh = wgetch(win);
+  inputCh = wgetch(win);
   if (inputCh == -1)
     return EV_NONE;
- nodelay(win , false);
-  Debug::Log(std::format("okej {}", inputCh));
+  nodelay(win, false);
   if (inputCh == 0xffffffff)
     return EV_NONE;
   switch (mode) {
@@ -25,7 +24,7 @@ VimktorEvent_t InputManager::GetEvent(WINDOW *win, VimktorMode_t mode) {
     break;
   }
 
- nodelay(win , true);
+  nodelay(win, true);
 }
 
 VimktorEvent_t InputManager::GetInputInsert(WINDOW *win) {
@@ -56,7 +55,6 @@ VimktorEvent_t InputManager::GetInputInsert(WINDOW *win) {
   case 0:
     break;
   default:
-    Debug::Log(std::format("okej {}", inputCh));
     return EV_INSERT_TEXT;
     break;
   }
@@ -126,16 +124,16 @@ VimktorEvent_t InputManager::IsEscapePressed() {
 }
 
 VimktorEvent_t InputManager::HandleDeleteEvent(WINDOW *win) {
-	
+
   uint16_t nextOp = wgetch(win);
 
   switch (nextOp) {
-	case 'd':
-		return EV_ERASE_LINE;
-		break;
+  case 'd':
+    return EV_ERASE_LINE;
+    break;
   default:
     if (IsEscapePressed() != EV_NONE)
       return EV_NONE;
   }
-	return EV_NONE;
+  return EV_NONE;
 }

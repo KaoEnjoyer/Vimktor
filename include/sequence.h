@@ -56,10 +56,10 @@ public:
                 size_t line); // relative , you dont need to consider pageOffset
   void AddGlyphAt(size_t col, size_t line, glyph_t glyph);
 
-  inline void SetPageDimensions(size_t pageWidth, size_t pageHeight){
-		m_pageWidth = pageWidth;
-		m_pageHeight= pageHeight;
-	}
+  inline void SetPageDimensions(size_t pageWidth, size_t pageHeight) {
+    m_pageWidth = pageWidth;
+    m_pageHeight = pageHeight;
+  }
 
   std::vector<glyph_t> &GetLineAt(size_t line);
   std::vector<glyph_t> &operator[](size_t line);

@@ -1,6 +1,8 @@
 #pragma once
+#include "format"
 #include <cstdint>
 #include <inttypes.h>
+#include <string>
 #define DEBUG_MODE 1
 #define COLOR 1
 
@@ -28,7 +30,7 @@ typedef struct positionStruct {
   int32_t y;
   positionStruct() : x(0), y(0) {}
   positionStruct(uint32_t x, uint32_t y) : x(x), y(y) {}
-
+  inline operator std::string() { return std::format("x: {}, y: {}", x, y); }
   positionStruct(const positionStruct &other) {
     x = other.x;
     y = other.y;
