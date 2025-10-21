@@ -4,6 +4,7 @@
 #include <expected>
 #include <fstream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 // glyph_t covers a char type functionality but it also contains color
@@ -11,6 +12,9 @@
 
 #define GLYPH_COLOR_16BIT
 #define GLYPH_CHAR_8BIT
+
+const float _scroll_ratio = 0.25; // if cursor place on this part of screen it
+                                  // will scroll n taht direction
 
 size_t const DEFAULT_SEQUENCE_LINE_NUM = (1 << 9);
 // how much lines does sequence reserve on init
@@ -46,6 +50,7 @@ public:
   Sequence(std::fstream &file);
 
   VimktorErr_t LoadFile(std::fstream &file);
+  VimktorErr_t WriteFile(std::fstream &file);
 
   inline const size_t Size() { return data.size(); }
   inline void Reserve(size_t n) { data.reserve(n); }
@@ -61,6 +66,9 @@ public:
     m_pageHeight = pageHeight;
   }
 
+  inline position_t GetPageDimensions() {
+    return position_t(m_pageWidth, m_pageHeight);
+  }
   std::vector<glyph_t> &GetLineAt(size_t line);
   std::vector<glyph_t> &operator[](size_t line);
 
@@ -91,9 +99,9 @@ public:
 
   void ManageLastPos(position_t &backUp);
   inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
-  inline const position_t &GetRelativeCursorPos() noexcept {
-
-    return (m_cursorPos - m_pagePos);
+  const position_t GetRelativeCursorPos() noexcept {
+    auto temp = m_cursorPos;
+    return (temp - m_pagePos);
   }
   position_t m_cursorPos;
   position_t m_cursorPosPrev; // this determines how much cursors should be

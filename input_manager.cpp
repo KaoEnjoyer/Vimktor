@@ -91,11 +91,17 @@ VimktorEvent_t InputManager::GetInputNormal(WINDOW *win) {
   case 'l':
     event = EV_CURSOR_RIGHT;
     break;
+  case 's':
+    event = EV_SAVE_FILE;
+    break;
   case '$':
     event = EV_GO_TO_EOL;
     break;
   case '0':
     event = EV_GO_TO_SOL;
+    break;
+  case ':':
+    event = EV_GET_COMMAND;
     break;
   case 'i':
     event = EV_MODE_INSERT;
@@ -117,7 +123,6 @@ VimktorEvent_t InputManager::IsEscapePressed() {
   if (inputCh == KEY_ESCAPE) {
     nodelay(stdscr, 1);
     char n = getch();
-    // if (n == 0)
     return EV_MODE_NORMAL;
   }
   return EV_NONE;

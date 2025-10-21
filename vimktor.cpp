@@ -10,12 +10,16 @@
 #include <cwchar>
 #include <fstream>
 #include <memory>
+#include <string>
+
+const uint HELPER_HEIGHT = 2;
+
 void Vimktor::Init() {
   InitCurses();
   LoadFile("test.cs");
   int w, h;
   getmaxyx(m_window, h, w);
-  m_sequence.SetPageDimensions(w, h);
+  m_sequence.SetPageDimensions(w, h - HELPER_HEIGHT);
   Debug::Log(std::format("max win w: {} , h{}", w, h));
 }
 
@@ -26,6 +30,8 @@ VimktorErr_t Vimktor::InitCurses() {
   m_window = stdscr;
   keypad(m_window, TRUE);
   raw();
+  nonl();
+  set_escdelay(50);
   nodelay(stdscr, true);
   noecho();
   curs_set(1);
@@ -34,13 +40,12 @@ VimktorErr_t Vimktor::InitCurses() {
 }
 
 VimktorErr_t Vimktor::RenderWindow() {
-  uint16_t maxX, maxY;
-  getmaxyx(m_window, maxY, maxX);
-
-  if (maxX == 0 || maxY == 0)
+  const auto txtDim = m_sequence.GetPageDimensions();
+  if (txtDim.x == 0 || txtDim.y == 0)
     return MEMORY_ERROR;
 
-  RenderText(0, 0, maxX, maxY);
+  RenderText(0, 0, txtDim.x, txtDim.y);
+  RenderHelper();
   RenderCursor();
   wrefresh(m_window);
   return VIMKTOR_OK;
@@ -49,6 +54,18 @@ VimktorErr_t Vimktor::RenderWindow() {
 VimktorErr_t Vimktor::RenderCursor() {
   position_t cursor = m_sequence.GetRelativeCursorPos();
   wmove(m_window, cursor.y, cursor.x);
+
+  return VIMKTOR_OK;
+}
+
+VimktorErr_t Vimktor::RenderHelper() {
+  position_t endPoint = GetEditorDimensions();
+  position_t cursorPos = m_sequence.GetCursorPos();
+  size_t x = endPoint.x - 6;
+  size_t y = endPoint.y - HELPER_HEIGHT;
+  // print cursor position
+  Debug::Log(std::format("endpoint {}  x: {}", (std::string)endPoint, x));
+  mvwprintw(m_window, y, x, "%u:%u", cursorPos.y, cursorPos.x);
 
   return VIMKTOR_OK;
 }
@@ -128,17 +145,77 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   case EV_GO_TO_EOL:
     m_sequence.CursorMoveEol();
     break;
+  case EV_SAVE_FILE:
+    WriteFile();
+    HelperLog("saved to " + m_filename);
+    break;
+  case EV_GET_COMMAND:
+    HandleCommands();
+    break;
   }
+  return VIMKTOR_OK;
+}
+
+VimktorErr_t Vimktor::HandleCommands() {
+  std::string cmd;
+
+  char16_t ch;
+
+  nodelay(m_window, 0);
+  while (1) {
+    ch = wgetch(m_window);
+    if (ch == KEY_ESCAPE || ch == 13 || ch == KEY_ENTER) {
+      nodelay(m_window, 1);
+      // ch = wgetch(m_window);
+      break;
+      wrefresh(stdscr);
+    }
+    cmd.push_back(ch);
+    HelperLog(cmd);
+    wrefresh(m_window);
+  }
+
+  // nodelay(m_window, 1);
+  HelperLog("                                           ");
+  wrefresh(stdscr);
+  if (commandList.contains(cmd)) {
+    HandleEvents(commandList[cmd]);
+  }
+
   return VIMKTOR_OK;
 }
 
 VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
   std::fstream file;
+  m_filename = fileName;
   file.open(fileName, std::ios::in);
   if (!file.good()) {
     return FILE_ERROR;
   }
   m_sequence.LoadFile(file);
+  file.close();
+  return VIMKTOR_OK;
+};
+
+VimktorErr_t Vimktor::WriteFile(const std::string &fileName) {
+  std::fstream file;
+  file.open(fileName, std::ios::out);
+  if (!file.good()) {
+    return FILE_ERROR;
+  }
+  m_sequence.WriteFile(file);
+  file.close();
+  return VIMKTOR_OK;
+};
+
+VimktorErr_t Vimktor::WriteFile() {
+  std::fstream file;
+  file.open(m_filename, std::ios::out);
+  if (!file.good()) {
+    return FILE_ERROR;
+  }
+  m_sequence.WriteFile(file);
+  file.close();
   return VIMKTOR_OK;
 };
 
@@ -149,3 +226,21 @@ void Vimktor::Loop() {
     m_sequence.m_mode = m_mode;
   }
 }
+
+position_t Vimktor::GetEditorDimensions() {
+  return position_t(getmaxx(m_window), getmaxy(m_window));
+}
+
+void Vimktor::HelperLog(const std::string &msg) {
+  position_t endPoint = GetEditorDimensions();
+  size_t y = endPoint.y - 1;
+  size_t x = 0;
+  wmove(m_window, y ,x);
+	clrtoeol();
+  mvwprintw(m_window, y, x, "%s", msg.c_str());
+}
+
+Vimktor::CommandList_t Vimktor::commandList = {
+    {"w", EV_SAVE_FILE},
+    {"q", EV_CLOSE},
+};

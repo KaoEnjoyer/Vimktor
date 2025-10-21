@@ -73,4 +73,6 @@ enum VimktorEvent_t {
   EV_INSERT_TEXT,
   EV_BACKSPACE,
   EV_ERASE_LINE,
+  EV_SAVE_FILE,
+  EV_GET_COMMAND,
 };
