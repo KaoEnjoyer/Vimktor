@@ -59,7 +59,8 @@ public:
   std::expected<glyph_t *, VimktorErr_t>
   GetGlyphAtRel(size_t col,
                 size_t line); // relative , you dont need to consider pageOffset
-  void AddGlyphAt(size_t col, size_t line, glyph_t glyph);
+  
+	void AddGlyphAt(size_t col, size_t line, glyph_t glyph);
 
   inline void SetPageDimensions(size_t pageWidth, size_t pageHeight) {
     m_pageWidth = pageWidth;
@@ -70,6 +71,7 @@ public:
     return position_t(m_pageWidth, m_pageHeight);
   }
   std::vector<glyph_t> &GetLineAt(size_t line);
+  std::vector<glyph_t> &GetLineAtCursor();
   std::vector<glyph_t> &operator[](size_t line);
 
   std::string GetStringAt(size_t line);
@@ -83,26 +85,39 @@ public:
   void SetLineTo(size_t line, const std::string &str);
 
   void AddCharTo(const position_t &pos);
-  void InsertCharCursor(const glyph_t &gl); // insserts char in cursros position
+
+/*
+  ------Cursor Text Editing-------
+ */
+	void InsertCharCursor(const glyph_t &gl); // insserts char in cursros position
   void ReplaceCharCursor(const glyph_t &gl); // replaces char in cursros
                                              // position cursor
   void EraseCharCursor();
   void EraseLineCursor();
 
-  VimktorErr_t CursorMove(CursorDirection dir);
+/*
+	------Cursor Movement--------
+*/
+	VimktorErr_t CursorMove(CursorDirection dir);
   VimktorErr_t CursorMovePos(const position_t &pos);
   VimktorErr_t CursorMovePos(const position_t &&pos);
   VimktorErr_t CursorChangeLine(CursorDirection dir);
   VimktorErr_t CursorMoveEol();
   VimktorErr_t CursorMoveSol();
   VimktorErr_t CursorManagePagePos();
-
+  VimktorErr_t CursorMoveWordNext();
+  VimktorErr_t CursorMoveWordEnd();
+  VimktorErr_t CursorMoveWordBeginSeperators();
+  VimktorErr_t CursorMoveWordEndSeperators();
   void ManageLastPos(position_t &backUp);
   inline const position_t &GetCursorPos() const noexcept { return m_cursorPos; }
   const position_t GetRelativeCursorPos() noexcept {
     auto temp = m_cursorPos;
     return (temp - m_pagePos);
   }
+
+
+
   position_t m_cursorPos;
   position_t m_cursorPosPrev; // this determines how much cursors should be
                               // offested after changin line

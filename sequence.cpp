@@ -19,6 +19,11 @@ std::vector<glyph_t> &Sequence::GetLineAt(size_t line) {
   assert(line < data.size());
   return (data[line]);
 }
+std::vector<glyph_t> &Sequence::GetLineAtCursor() {
+  size_t line = m_cursorPos.y;
+  assert(line < data.size());
+  return (data[line]);
+}
 
 std::expected<glyph_t *, VimktorErr_t> Sequence::GetGlyphAt(size_t col,
                                                             size_t line) {
@@ -211,7 +216,6 @@ VimktorErr_t Sequence::WriteFile(std::fstream &file) {
     }
     file << '\n';
   }
-  
 
   return VIMKTOR_OK;
 }
@@ -245,7 +249,6 @@ void Sequence::EraseCharCursor() {
     CursorMoveEol();
     return;
   }
-
   CursorMove(LEFT);
   const auto itr = data[m_cursorPos.y].begin() + m_cursorPos.x;
   data[m_cursorPos.y].erase(itr);
@@ -253,6 +256,11 @@ void Sequence::EraseCharCursor() {
 
 void Sequence::EraseLineCursor() {
   auto itr = data.begin() + m_cursorPos.y;
+  if (data.size() == 1) {
+    itr->clear();
+    CursorMoveSol();
+    return;
+  }
   if (itr == data.end())
     itr--;
   data.erase(itr);
@@ -273,6 +281,29 @@ VimktorErr_t Sequence::CursorMoveSol() {
   m_cursorPos.x = 0;
 
   return VIMKTOR_OK;
+}
+
+VimktorErr_t Sequence::CursorMoveWordNext() {
+  auto itr =
+      GetLineAtCursor().begin() + m_cursorPos.x; // current letter nder cursor
+  bool afterSpace = false;
+  while (itr != GetLineAtCursor().end()) {
+    if (itr->ch == ' ') {
+      afterSpace = true;
+    } else {
+
+      if (afterSpace) {
+        m_cursorPos.x = itr -GetLineAtCursor().begin() ;
+        return VIMKTOR_OK;
+      }
+    }
+    itr++;
+  }
+  if (m_cursorPos.y < Size()) {
+    CursorMove(DOWN);
+    CursorMoveSol();
+    return VIMKTOR_OK;
+  }
 }
 
 VimktorErr_t Sequence::CursorManagePagePos() {

@@ -100,6 +100,9 @@ VimktorEvent_t InputManager::GetInputNormal(WINDOW *win) {
   case '0':
     event = EV_GO_TO_SOL;
     break;
+  case 'W':
+    event = EV_GO_TO_NEXT_WORD;
+    break;
   case ':':
     event = EV_GET_COMMAND;
     break;

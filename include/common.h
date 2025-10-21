@@ -75,4 +75,5 @@ enum VimktorEvent_t {
   EV_ERASE_LINE,
   EV_SAVE_FILE,
   EV_GET_COMMAND,
+  EV_GO_TO_NEXT_WORD,
 };

@@ -142,6 +142,9 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   case EV_GO_TO_SOL:
     m_sequence.CursorMoveSol();
     break;
+  case EV_GO_TO_NEXT_WORD:
+    m_sequence.CursorMoveWordNext();
+    break;
   case EV_GO_TO_EOL:
     m_sequence.CursorMoveEol();
     break;
