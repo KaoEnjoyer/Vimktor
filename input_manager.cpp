@@ -37,6 +37,9 @@ VimktorEvent_t InputManager::GetInputInsert(WINDOW *win) {
   case 'q':
     return EV_CLOSE;
     break;
+  case KEY_ENTER_VIMKTOR:
+    return EV_NEW_LINE;
+    break;
   case KEY_UP:
     return EV_CURSOR_UP;
     break;
@@ -68,6 +71,9 @@ VimktorEvent_t InputManager::GetInputNormal(WINDOW *win) {
     return EV_CURSOR_UP;
     break;
   case KEY_DOWN:
+    return EV_CURSOR_DOWN;
+    break;
+  case KEY_ENTER_VIMKTOR:
     return EV_CURSOR_DOWN;
     break;
   case KEY_LEFT:

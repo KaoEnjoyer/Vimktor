@@ -254,6 +254,14 @@ void Sequence::EraseCharCursor() {
   data[m_cursorPos.y].erase(itr);
 }
 
+void Sequence::AddNewLineCursor() {
+  auto itr = data.begin() + m_cursorPos.y + 1;
+  std::vector<glyph_t> new_line;
+  new_line.reserve(DEFAULT_LINE_LENGTH);
+  CursorMove(DOWN);
+  data.insert(itr, std::move(new_line));
+}
+
 void Sequence::EraseLineCursor() {
   auto itr = data.begin() + m_cursorPos.y;
   if (data.size() == 1) {
@@ -293,7 +301,7 @@ VimktorErr_t Sequence::CursorMoveWordNext() {
     } else {
 
       if (afterSpace) {
-        m_cursorPos.x = itr -GetLineAtCursor().begin() ;
+        m_cursorPos.x = itr - GetLineAtCursor().begin();
         return VIMKTOR_OK;
       }
     }

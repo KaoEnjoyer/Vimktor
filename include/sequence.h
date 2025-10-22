@@ -17,6 +17,7 @@ const float _scroll_ratio = 0.25; // if cursor place on this part of screen it
                                   // will scroll n taht direction
 
 size_t const DEFAULT_SEQUENCE_LINE_NUM = (1 << 9);
+size_t const DEFAULT_LINE_LENGTH = 126;
 // how much lines does sequence reserve on init
 
 typedef struct glyphStruct {
@@ -59,8 +60,8 @@ public:
   std::expected<glyph_t *, VimktorErr_t>
   GetGlyphAtRel(size_t col,
                 size_t line); // relative , you dont need to consider pageOffset
-  
-	void AddGlyphAt(size_t col, size_t line, glyph_t glyph);
+
+  void AddGlyphAt(size_t col, size_t line, glyph_t glyph);
 
   inline void SetPageDimensions(size_t pageWidth, size_t pageHeight) {
     m_pageWidth = pageWidth;
@@ -86,19 +87,20 @@ public:
 
   void AddCharTo(const position_t &pos);
 
-/*
-  ------Cursor Text Editing-------
- */
-	void InsertCharCursor(const glyph_t &gl); // insserts char in cursros position
+  /*
+    ------Cursor Text Editing-------
+   */
+  void InsertCharCursor(const glyph_t &gl); // insserts char in cursros position
   void ReplaceCharCursor(const glyph_t &gl); // replaces char in cursros
                                              // position cursor
+  void AddNewLineCursor();
   void EraseCharCursor();
   void EraseLineCursor();
 
-/*
-	------Cursor Movement--------
-*/
-	VimktorErr_t CursorMove(CursorDirection dir);
+  /*
+          ------Cursor Movement--------
+  */
+  VimktorErr_t CursorMove(CursorDirection dir);
   VimktorErr_t CursorMovePos(const position_t &pos);
   VimktorErr_t CursorMovePos(const position_t &&pos);
   VimktorErr_t CursorChangeLine(CursorDirection dir);
@@ -115,8 +117,6 @@ public:
     auto temp = m_cursorPos;
     return (temp - m_pagePos);
   }
-
-
 
   position_t m_cursorPos;
   position_t m_cursorPosPrev; // this determines how much cursors should be

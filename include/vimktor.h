@@ -29,6 +29,7 @@ public:
   VimktorErr_t InitCurses();
 
   // renderer
+  VimktorErr_t RenderLineNumber();
   VimktorErr_t RenderWindow();
   VimktorErr_t RenderHelper();
   void HelperLog(const std::string& msg);

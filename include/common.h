@@ -74,6 +74,7 @@ enum VimktorEvent_t {
   EV_BACKSPACE,
   EV_ERASE_LINE,
   EV_SAVE_FILE,
+  EV_NEW_LINE,
   EV_GET_COMMAND,
   EV_GO_TO_NEXT_WORD,
 };

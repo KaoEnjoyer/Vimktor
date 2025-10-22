@@ -13,13 +13,14 @@
 #include <string>
 
 const uint HELPER_HEIGHT = 2;
+const uint LINE_NUM_WIDTH = 5;
 
 void Vimktor::Init() {
   InitCurses();
   LoadFile("test.cs");
   int w, h;
   getmaxyx(m_window, h, w);
-  m_sequence.SetPageDimensions(w, h - HELPER_HEIGHT);
+  m_sequence.SetPageDimensions(w - LINE_NUM_WIDTH, h - HELPER_HEIGHT);
   Debug::Log(std::format("max win w: {} , h{}", w, h));
 }
 
@@ -44,16 +45,29 @@ VimktorErr_t Vimktor::RenderWindow() {
   if (txtDim.x == 0 || txtDim.y == 0)
     return MEMORY_ERROR;
 
-  RenderText(0, 0, txtDim.x, txtDim.y);
+  RenderText(LINE_NUM_WIDTH, 0, txtDim.x, txtDim.y);
+  RenderLineNumber();
   RenderHelper();
   RenderCursor();
   wrefresh(m_window);
   return VIMKTOR_OK;
 }
 
+VimktorErr_t Vimktor::RenderLineNumber() {
+  size_t first_nr = m_sequence.m_pagePos.y;
+  size_t height = m_sequence.GetPageDimensions().y;
+  for (uint y = 0; y < height; y++) {
+    if (first_nr + y > m_sequence.Size())
+      return VIMKTOR_OK;
+    mvwprintw(m_window, y, 1, "%u", first_nr + y);
+  }
+
+  return VIMKTOR_OK;
+}
+
 VimktorErr_t Vimktor::RenderCursor() {
   position_t cursor = m_sequence.GetRelativeCursorPos();
-  wmove(m_window, cursor.y, cursor.x);
+  wmove(m_window, cursor.y, cursor.x + LINE_NUM_WIDTH);
 
   return VIMKTOR_OK;
 }
@@ -77,8 +91,8 @@ VimktorErr_t Vimktor::RenderText(uint16_t x, uint16_t y, uint16_t width,
     for (uint16_t i_x = x; i_x < width; i_x++) {
 
       wmove(m_window, i_y, i_x);
-      if (m_sequence.GetGlyphAtRel(i_x, i_y).has_value()) {
-        const auto *temp = m_sequence.GetGlyphAtRel(i_x, i_y).value();
+      if (m_sequence.GetGlyphAtRel(i_x - x, i_y).has_value()) {
+        const auto *temp = m_sequence.GetGlyphAtRel(i_x - x, i_y).value();
         waddch(m_window, temp->ch);
       } else {
         waddch(m_window, ' ');
@@ -152,6 +166,9 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
     WriteFile();
     HelperLog("saved to " + m_filename);
     break;
+  case EV_NEW_LINE:
+    m_sequence.AddNewLineCursor();
+    break;
   case EV_GET_COMMAND:
     HandleCommands();
     break;
@@ -193,6 +210,9 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
   m_filename = fileName;
   file.open(fileName, std::ios::in);
   if (!file.good()) {
+    file.close();
+    file.open(fileName, std::ios::out | std::ios::in | std::fstream::trunc);
+    m_sequence.AddNewLineCursor();
     return FILE_ERROR;
   }
   m_sequence.LoadFile(file);
@@ -238,8 +258,8 @@ void Vimktor::HelperLog(const std::string &msg) {
   position_t endPoint = GetEditorDimensions();
   size_t y = endPoint.y - 1;
   size_t x = 0;
-  wmove(m_window, y ,x);
-	clrtoeol();
+  wmove(m_window, y, x);
+  clrtoeol();
   mvwprintw(m_window, y, x, "%s", msg.c_str());
 }
 
