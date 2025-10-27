@@ -18,12 +18,13 @@ public:
   Vimktor(WINDOW *window, std::fstream &file)
       : m_window(window), m_mode(NORMAL) {}
 
+  inline Vimktor(std::string &fileName) { LoadFile(fileName); }
+
   void Init();
   void End();
   void Loop();
   // private:
   VimktorErr_t LoadFile(const std::string &fileName);
-
   VimktorErr_t WriteFile(const std::string &fileName);
   VimktorErr_t WriteFile();
   VimktorErr_t InitCurses();
@@ -32,7 +33,7 @@ public:
   VimktorErr_t RenderLineNumber();
   VimktorErr_t RenderWindow();
   VimktorErr_t RenderHelper();
-  void HelperLog(const std::string& msg);
+  void HelperLog(const std::string &msg);
   VimktorErr_t RenderCursor();
   VimktorErr_t RenderText(uint16_t x, uint16_t y, uint16_t width,
                           uint16_t height);
@@ -41,6 +42,8 @@ public:
 
   VimktorErr_t HandleEvents(VimktorEvent_t event);
   VimktorErr_t HandleCommands();
+
+  std::string GetModeStr() const;
 
   // variables
   WINDOW *m_window;

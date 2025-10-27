@@ -22,6 +22,7 @@ void Vimktor::Init() {
   getmaxyx(m_window, h, w);
   m_sequence.SetPageDimensions(w - LINE_NUM_WIDTH, h - HELPER_HEIGHT);
   Debug::Log(std::format("max win w: {} , h{}", w, h));
+  wrefresh(m_window);
 }
 
 void Vimktor::End() { endwin(); }
@@ -33,7 +34,7 @@ VimktorErr_t Vimktor::InitCurses() {
   raw();
   nonl();
   set_escdelay(50);
-  nodelay(stdscr, true);
+  nodelay(stdscr, false);
   noecho();
   curs_set(1);
   init_color(COLOR, 0, 0, 0);
@@ -57,9 +58,11 @@ VimktorErr_t Vimktor::RenderLineNumber() {
   size_t first_nr = m_sequence.m_pagePos.y;
   size_t height = m_sequence.GetPageDimensions().y;
   for (uint y = 0; y < height; y++) {
-    if (first_nr + y > m_sequence.Size())
-      return VIMKTOR_OK;
-    mvwprintw(m_window, y, 1, "%u", first_nr + y);
+    if (first_nr + y >= m_sequence.Size()) {
+
+      mvwprintw(m_window, y, 1, "    ");
+    } else
+      mvwprintw(m_window, y, 1, "%u", first_nr + y + 1);
   }
 
   return VIMKTOR_OK;
@@ -79,8 +82,13 @@ VimktorErr_t Vimktor::RenderHelper() {
   size_t y = endPoint.y - HELPER_HEIGHT;
   // print cursor position
   Debug::Log(std::format("endpoint {}  x: {}", (std::string)endPoint, x));
-  mvwprintw(m_window, y, x, "%u:%u", cursorPos.y, cursorPos.x);
+  mvwprintw(m_window, y, x, "     ");
 
+  mvwprintw(m_window, y, x, "%u:%d", cursorPos.y, cursorPos.x);
+
+  // print activ mode and file name
+  mvwprintw(m_window, y, 1, "%s  %s lines: %u ", GetModeStr().c_str(),
+            m_filename.c_str(), m_sequence.Size());
   return VIMKTOR_OK;
 }
 
@@ -194,6 +202,7 @@ VimktorErr_t Vimktor::HandleCommands() {
     HelperLog(cmd);
     wrefresh(m_window);
   }
+  nodelay(m_window, 0);
 
   // nodelay(m_window, 1);
   HelperLog("                                           ");
@@ -212,7 +221,6 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
   if (!file.good()) {
     file.close();
     file.open(fileName, std::ios::out | std::ios::in | std::fstream::trunc);
-    m_sequence.AddNewLineCursor();
     return FILE_ERROR;
   }
   m_sequence.LoadFile(file);
@@ -244,8 +252,8 @@ VimktorErr_t Vimktor::WriteFile() {
 
 void Vimktor::Loop() {
   while (m_mode != EXIT) {
-    GetInput();
     RenderWindow();
+    GetInput();
     m_sequence.m_mode = m_mode;
   }
 }
@@ -267,3 +275,12 @@ Vimktor::CommandList_t Vimktor::commandList = {
     {"w", EV_SAVE_FILE},
     {"q", EV_CLOSE},
 };
+
+std::string Vimktor::GetModeStr() const {
+  if (m_mode == VimktorMode_t::INSERT)
+    return "Insert";
+  if (m_mode == VimktorMode_t::NORMAL)
+    return "Normal";
+  if (m_mode == VimktorMode_t::VISUAL)
+    return "Visual";
+}

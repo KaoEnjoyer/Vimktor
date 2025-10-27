@@ -3,8 +3,14 @@
 #include <expected>
 #include <iostream>
 
-int main() {
+int main(int argc, char **argv) {
+  // std::cout << argc << " " << argv[0] << " " << argv[1];
   Vimktor app = Vimktor();
+  if (argc > 1) {
+    std::string fileName;
+    strcpy(fileName.data(), argv[1]);
+    app.LoadFile(fileName);
+  }
   app.Init();
   app.Loop();
   app.End();

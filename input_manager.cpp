@@ -9,7 +9,6 @@ VimktorEvent_t InputManager::GetEvent(WINDOW *win, VimktorMode_t mode) {
   inputCh = wgetch(win);
   if (inputCh == -1)
     return EV_NONE;
-  nodelay(win, false);
   if (inputCh == 0xffffffff)
     return EV_NONE;
   switch (mode) {
@@ -23,8 +22,6 @@ VimktorEvent_t InputManager::GetEvent(WINDOW *win, VimktorMode_t mode) {
     return VimktorEvent_t::EV_NONE;
     break;
   }
-
-  nodelay(win, true);
 }
 
 VimktorEvent_t InputManager::GetInputInsert(WINDOW *win) {
@@ -132,6 +129,7 @@ VimktorEvent_t InputManager::IsEscapePressed() {
   if (inputCh == KEY_ESCAPE) {
     nodelay(stdscr, 1);
     char n = getch();
+    nodelay(stdscr, 0);
     return EV_MODE_NORMAL;
   }
   return EV_NONE;

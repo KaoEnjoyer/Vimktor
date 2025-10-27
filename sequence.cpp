@@ -258,8 +258,8 @@ void Sequence::AddNewLineCursor() {
   auto itr = data.begin() + m_cursorPos.y + 1;
   std::vector<glyph_t> new_line;
   new_line.reserve(DEFAULT_LINE_LENGTH);
-  CursorMove(DOWN);
   data.insert(itr, std::move(new_line));
+  CursorMove(DOWN);
 }
 
 void Sequence::EraseLineCursor() {

@@ -6,6 +6,7 @@
 #define DEBUG_MODE 1
 #define COLOR 1
 
+
 enum VimktorErr_t {
   VIMKTOR_OK,
   MEMORY_ERROR,
