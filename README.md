@@ -1,15 +1,21 @@
 ### What is it ?
 Vimktor is simple Vim-like text editor written in c++. Vimktor provides fast, memory efficient and efective text editing enviorment
 
-### How to build ?
+## How to build ?
+### Dependencies
+- cmake
+- curses
 
-## Linux
-run these  commands: \
-`cd Vimtkor \ 
-`cmake -B build \
-`cmake --build /build \
-`cd build \
-`./Vimktor <file you want to edit> \
+
+### Linux
+run these  commands: 
+```sh
+cd Vimktor  
+cmake -B build 
+cmake --build build 
+cd build 
+./Vimktor [file you want to edit]
+```
 
 
 ### Keymaps
@@ -17,8 +23,8 @@ run these  commands: \
 "$" -> Jump to end of line \
 "0" -> Jump to first char \
 "x" -> delete current char \
-":" -> use command \
+":" -> use command 
 
 ### Commands
 "w" -> save file \
-"q" -> quit \
+"q" -> quit 
