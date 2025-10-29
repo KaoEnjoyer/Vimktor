@@ -1,6 +1,6 @@
 log_file.txt
-*.txt
 debug.sh
+debug.txt
 debug.gdb
 compile_commands.json
 vimktor

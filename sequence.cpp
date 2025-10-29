@@ -192,8 +192,8 @@ void Sequence::AddGlyphAt(size_t col, size_t line, glyph_t glyph) {
 
 VimktorErr_t Sequence::LoadFile(std::fstream &file) {
 
+  data.clear();
   data.reserve(DEFAULT_SEQUENCE_LINE_NUM);
-
   std::string line;
 
   while (!file.eof()) {

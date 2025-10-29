@@ -17,7 +17,6 @@ const uint LINE_NUM_WIDTH = 5;
 
 void Vimktor::Init() {
   InitCurses();
-  LoadFile("test.cs");
   int w, h;
   getmaxyx(m_window, h, w);
   m_sequence.SetPageDimensions(w - LINE_NUM_WIDTH, h - HELPER_HEIGHT);
@@ -220,9 +219,10 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
   file.open(fileName, std::ios::in);
   if (!file.good()) {
     file.close();
-    file.open(fileName, std::ios::out | std::ios::in | std::fstream::trunc);
+    file.open(m_filename, std::ios::out | std::ios::in | std::fstream::trunc);
     return FILE_ERROR;
   }
+  Debug::Log( "plik zapisu: " + m_filename); 
   m_sequence.LoadFile(file);
   file.close();
   return VIMKTOR_OK;
