@@ -8,3 +8,4 @@ Vimktor
 Makefile
 build/
 CMakeFiles/
+.idea/
