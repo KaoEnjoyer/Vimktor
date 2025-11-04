@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <cstdio>
 #include <expected>
+#include <filesystem>
 #include <format>
 #include <fstream>
 #include <iostream>
@@ -58,7 +59,19 @@ void Sequence::SetLineTo(size_t line, const std::string &str) {
     data[line].push_back(glyph_t(el));
   }
 }
+std::string Sequence::GetStringCursor() {
+  size_t line = m_cursorPos.y;
+  assert(data.size() > line);
 
+  std::string ans;
+  ans.resize(data[line].size());
+
+  size_t num = 0;
+  for (auto glyph : data[line]) {
+    ans[num++] = glyph;
+  }
+  return ans;
+}
 std::string Sequence::GetStringAt(size_t line) {
 
   assert(data.size() > line);
@@ -234,6 +247,7 @@ VimktorErr_t Sequence::CursorPosValid() {
 }
 
 void Sequence::InsertCharCursor(const glyph_t &gl) {
+  if(Size() == 0)data.emplace_back();
   const auto itr = data[m_cursorPos.y].begin() + m_cursorPos.x;
   data[m_cursorPos.y].insert(itr, gl);
   CursorMove(RIGHT);
@@ -341,5 +355,14 @@ VimktorErr_t Sequence::CursorManagePagePos() {
   // You might want to add maximum x bounds based on your longest line
 
   Debug::Log(std::format("page x{}, page y{}", m_pagePos.x, m_pagePos.y));
+  return VIMKTOR_OK;
+}
+
+VimktorErr_t Sequence::LoadCurrentDirectory() {
+  data.clear();
+  auto path = std::filesystem::current_path();
+  for (auto const &dir : std::filesystem::directory_iterator{path}) {
+    AddLine(dir.path().filename());
+  }
   return VIMKTOR_OK;
 }

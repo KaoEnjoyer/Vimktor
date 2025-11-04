@@ -6,7 +6,6 @@
 #define DEBUG_MODE 1
 #define COLOR 1
 
-
 enum VimktorErr_t {
   VIMKTOR_OK,
   MEMORY_ERROR,
@@ -16,7 +15,7 @@ enum VimktorErr_t {
   EOL_ERROR
 };
 
-enum VimktorMode_t { INSERT, VISUAL, NORMAL, EXIT };
+enum VimktorMode_t { INSERT, VISUAL, NORMAL, EXIT, FILES };
 
 enum CursorDirection {
   LEFT,
@@ -78,4 +77,6 @@ enum VimktorEvent_t {
   EV_NEW_LINE,
   EV_GET_COMMAND,
   EV_GO_TO_NEXT_WORD,
+  EV_FILE_EXPLORER,
+  EV_ENTER_CURSOR_DIRECTORY,
 };

@@ -18,10 +18,50 @@ VimktorEvent_t InputManager::GetEvent(WINDOW *win, VimktorMode_t mode) {
   case VimktorMode_t::INSERT:
     return GetInputInsert(win);
     break;
+  case VimktorMode_t::FILES:
+    return GetInputFileExp(win);
+    break;
   default:
     return VimktorEvent_t::EV_NONE;
     break;
   }
+}
+VimktorEvent_t InputManager::GetInputFileExp(WINDOW *win) {
+
+  VimktorEvent_t event = EV_NONE;
+  switch (inputCh) {
+  case 'h':
+    event = EV_CURSOR_LEFT;
+    break;
+  case 'j':
+    event = EV_CURSOR_DOWN;
+    break;
+  case 'k':
+    event = EV_CURSOR_UP;
+    break;
+  case 'l':
+    event = EV_CURSOR_RIGHT;
+    break;
+  case 's':
+    event = EV_SAVE_FILE;
+    break;
+  case '$':
+    event = EV_GO_TO_EOL;
+    break;
+  case '0':
+    event = EV_GO_TO_SOL;
+    break;
+  case 'W':
+    event = EV_GO_TO_NEXT_WORD;
+    break;
+  case ':':
+    event = EV_GET_COMMAND;
+    break;
+  case KEY_ENTER_VIMKTOR:
+    event = EV_ENTER_CURSOR_DIRECTORY;
+    break;
+  }
+  return event;
 }
 
 VimktorEvent_t InputManager::GetInputInsert(WINDOW *win) {
@@ -33,9 +73,6 @@ VimktorEvent_t InputManager::GetInputInsert(WINDOW *win) {
   switch (inputCh) {
   case 'q':
     return EV_CLOSE;
-    break;
-  case KEY_ENTER_VIMKTOR:
-    return EV_NEW_LINE;
     break;
   case KEY_UP:
     return EV_CURSOR_UP;

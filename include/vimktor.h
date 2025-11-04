@@ -24,6 +24,7 @@ public:
   void End();
   void Loop();
   // private:
+  VimktorErr_t OpenEmpty();
   VimktorErr_t LoadFile(const std::string &fileName);
   VimktorErr_t WriteFile(const std::string &fileName);
   VimktorErr_t WriteFile();
@@ -44,6 +45,14 @@ public:
   VimktorErr_t HandleCommands();
 
   std::string GetModeStr() const;
+
+
+
+  //file exploring
+  VimktorErr_t ExplorePath();
+  VimktorErr_t ExplorePath(const std::string& path_str);
+  VimktorErr_t OpenFileCursor();
+
 
   // variables
   WINDOW *m_window;

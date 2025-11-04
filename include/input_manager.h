@@ -23,8 +23,8 @@ private:
   VimktorEvent_t IsEscapePressed();
   VimktorEvent_t HandleDeleteEvent(WINDOW* win);
 
-
-	VimktorEvent_t GetInputInsert(WINDOW* win);
+VimktorEvent_t GetInputFileExp(WINDOW* win);
+VimktorEvent_t GetInputInsert(WINDOW* win);
   VimktorEvent_t GetInputNormal(WINDOW* win);
   InputManager() { inputCh = 0; }
 };

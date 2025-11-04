@@ -71,12 +71,14 @@ public:
   inline position_t GetPageDimensions() {
     return position_t(m_pageWidth, m_pageHeight);
   }
+
   std::vector<glyph_t> &GetLineAt(size_t line);
   std::vector<glyph_t> &GetLineAtCursor();
   std::vector<glyph_t> &operator[](size_t line);
 
   std::string GetStringAt(size_t line);
 
+  std::string GetStringCursor();
   inline const size_t LineSize(size_t line) {
     if (m_mode == INSERT)
       return data.at(line).size() + 1;
@@ -87,7 +89,8 @@ public:
 
   void AddCharTo(const position_t &pos);
 
-  /*
+   VimktorErr_t LoadCurrentDirectory();
+	/*
     ------Cursor Text Editing-------
    */
   void InsertCharCursor(const glyph_t &gl); // insserts char in cursros position

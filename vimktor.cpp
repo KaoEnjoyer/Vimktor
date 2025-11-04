@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <curses.h>
 #include <cwchar>
+#include <filesystem>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -158,7 +159,6 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
   case EV_INSERT_TEXT: {
     glyph_t gl = glyph_t(InputManager::Get().GetChar());
     m_sequence.InsertCharCursor(gl);
-
   } break;
   case EV_GO_TO_SOL:
     m_sequence.CursorMoveSol();
@@ -178,6 +178,14 @@ VimktorErr_t Vimktor::HandleEvents(VimktorEvent_t event) {
     break;
   case EV_GET_COMMAND:
     HandleCommands();
+    break;
+  case EV_FILE_EXPLORER:
+    WriteFile();
+    m_mode = FILES;
+    ExplorePath();
+    break;
+  case EV_ENTER_CURSOR_DIRECTORY:
+    OpenFileCursor();
     break;
   }
   return VIMKTOR_OK;
@@ -213,7 +221,13 @@ VimktorErr_t Vimktor::HandleCommands() {
   return VIMKTOR_OK;
 }
 
+VimktorErr_t Vimktor::OpenEmpty() { LoadFile(".vimktor_temp"); }
+
 VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
+  if (fileName == ".") {
+    ExplorePath();
+    return VIMKTOR_OK;
+  }
   std::fstream file;
   m_filename = fileName;
   file.open(fileName, std::ios::in);
@@ -222,7 +236,7 @@ VimktorErr_t Vimktor::LoadFile(const std::string &fileName) {
     file.open(m_filename, std::ios::out | std::ios::in | std::fstream::trunc);
     return FILE_ERROR;
   }
-  Debug::Log( "plik zapisu: " + m_filename); 
+  Debug::Log("plik zapisu: " + m_filename);
   m_sequence.LoadFile(file);
   file.close();
   return VIMKTOR_OK;
@@ -273,14 +287,40 @@ void Vimktor::HelperLog(const std::string &msg) {
 
 Vimktor::CommandList_t Vimktor::commandList = {
     {"w", EV_SAVE_FILE},
+    {"Explore", EV_FILE_EXPLORER},
     {"q", EV_CLOSE},
 };
 
 std::string Vimktor::GetModeStr() const {
+  if (m_mode == VimktorMode_t::FILES)
+    return "Files";
   if (m_mode == VimktorMode_t::INSERT)
     return "Insert";
   if (m_mode == VimktorMode_t::NORMAL)
     return "Normal";
   if (m_mode == VimktorMode_t::VISUAL)
     return "Visual";
+}
+
+VimktorErr_t Vimktor::ExplorePath() {
+
+  HelperLog(std::filesystem::current_path().string());
+  m_sequence.LoadCurrentDirectory();
+}
+
+VimktorErr_t Vimktor::ExplorePath(const std::string &path_str) {
+  std::filesystem::current_path(path_str);
+  HelperLog(std::filesystem::current_path().string());
+  m_sequence.LoadCurrentDirectory();
+}
+
+VimktorErr_t Vimktor::OpenFileCursor() {
+  auto path = std::filesystem::current_path();
+  std::string path_str = path.string() + m_sequence.GetStringCursor();
+  if (std::filesystem::is_directory(path_str)) {
+    ExplorePath(path_str);
+  } else {
+    LoadFile(m_sequence.GetStringCursor());
+    m_mode = NORMAL;
+  }
 }
